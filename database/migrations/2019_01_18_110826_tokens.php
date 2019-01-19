@@ -15,7 +15,7 @@ class Tokens extends Migration
     {
         Schema::create('tokens', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->text('name');
             $table->integer('user_id');
             $table->string('expiry_time');
             $table->timestamps();
