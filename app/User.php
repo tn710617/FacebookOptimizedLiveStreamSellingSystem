@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -28,8 +29,13 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public static function getUserID($FacebookResources)
+    public static function getUserIDViaFACEBOOK($FacebookResources)
     {
         return User::where('email', $FacebookResources->getEmail())->first()->id;
+    }
+
+    public static function getUserID(Request $request)
+    {
+        return Token::where('name', $request->bearerToken())->first()->user_id;
     }
 }

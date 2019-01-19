@@ -40,7 +40,7 @@ class UsersController extends Controller {
 
         if (Token::checkIfUserExists($me) > 0)
         {
-            $user_id = User::getUserID($me);
+            $user_id = User::getUserIDViaFACEBOOK($me);
             Token::forceCreate([
                 'name'        => $request->bearerToken(),
                 'user_id'     => $user_id,

@@ -19,4 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/getData', 'FacebookPHPSDK@getData');
 Route::post('/token', 'UsersController@refreshOrCreate');
 Route::get('/users', 'UsersController@get');
+Route::post('/items', 'ItemController@create');
 Route::post('/test', 'TestController@test');
