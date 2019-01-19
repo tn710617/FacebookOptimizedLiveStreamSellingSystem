@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'FB_id', 'host', 'id'
     ];
 
     /**
@@ -27,4 +27,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public static function getUserID($FacebookResources)
+    {
+        return User::where('email', $FacebookResources->getEmail())->first()->id;
+    }
 }
