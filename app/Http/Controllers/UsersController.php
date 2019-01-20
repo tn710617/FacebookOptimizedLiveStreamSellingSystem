@@ -69,7 +69,11 @@ class UsersController extends Controller {
     {
         $endpoint = 'me?fields=id,name,email,picture';
         $me = Helpers::getFacebookResources($request->bearerToken(), $endpoint);
-        $response = ['name' => $me->getName(), 'email' => $me->getEmail(), 'avatar' => $me->getPicture()['url']];
+        $response = ['name' => $me->getName(),
+                     'email' => $me->getEmail(),
+                     'avatar' => $me->getPicture()['url'],
+                    'user_id' => User::getUserID($request)
+            ];
 
         return Helpers::result(true, $response, 200);
     }
