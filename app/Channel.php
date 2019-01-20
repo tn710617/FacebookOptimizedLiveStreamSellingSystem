@@ -9,6 +9,6 @@ class Channel extends Model
 {
     public function streaming_item()
     {
-        $this->hasMany('App\StreamingItem');
+        return $this->hasMany('App\StreamingItem');
     }
 }

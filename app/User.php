@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return User::find(User::getUserID($request))->channel_id;
     }
+
+    public static function getUser(Request $request)
+    {
+        return User::find(User::getUserID($request))->first();
+    }
 }

@@ -36,7 +36,7 @@ class ItemsController extends Controller {
         if ($request->hasFile('images'))
         {
             $images = $request->file('images');
-            $fileName = time() . '.' . Helpers::createAUniqueChannelToken() . '.' . $request->images->getClientOriginalExtension();
+            $fileName = time() . '.' . Helpers::createAUniqueNumber() . '.' . $request->images->getClientOriginalExtension();
             $images->move('../storage/app/public/upload/', $fileName);
             $items->images = $fileName;
             $items->save();

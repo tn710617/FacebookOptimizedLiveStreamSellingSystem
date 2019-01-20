@@ -22,7 +22,7 @@ class LiveStreamController extends Controller {
         $host = (new User)->find(User::getUserID($request));
         $channel = new Channel();
         $channel->user_id = $host->id;
-        $channel->name = Helpers::createAUniqueChannelToken();
+        $channel->name = Helpers::createAUniqueNumber();
         $channel->iFrame = $request->iFrame;
         $channel->started_at = Carbon::now();
         $channel->channel_description = $request->channel_description;
@@ -84,7 +84,7 @@ class LiveStreamController extends Controller {
         {
             return Helpers::result(false, 'You have to be in a channel', 400);
         }
-        $streaming_items = StreamingItem::where('channel_id', $channel->id)->latest()->first();
+        $streaming_items = StreamingItem::getStreamingItems($channel->id);
         if($streaming_items == null)
         {
             return Helpers::result(false, 'You need to stream an item first', 400);

@@ -75,7 +75,7 @@ class Helpers {
         }
     }
 
-    public static function createAUniqueChannelToken()
+    public static function createAUniqueNumber()
     {
         $checkTokenCount = 1;
         while ($checkTokenCount)

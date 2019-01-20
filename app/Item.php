@@ -8,6 +8,20 @@ use Illuminate\Http\Request;
 class Item extends Model
 {
     //
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'stock'
+    ];
+
+
+    public function streamingItem()
+    {
+        return $this->hasMany('App\StreamingItem');
+    }
     public static function checkIfAnyItemUploaded(Request $request)
     {
         $items = (User::find(User::getUserID($request))->item);
