@@ -53,4 +53,18 @@ class User extends Authenticatable
         }
         return false;
     }
+
+    public static function checkIfUserIsAHost(Request $request)
+    {
+        if(self::find(self::getUserID($request))->host == true)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public static function getUserChannelId (Request $request)
+    {
+        return User::find(User::getUserID($request))->channel_id;
+    }
 }

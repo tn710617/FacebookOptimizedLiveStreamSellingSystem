@@ -12,19 +12,10 @@ class TestController extends Controller
 {
     public function test(Request $request)
     {
-        if(Item::checkIfAnyItemUploaded($request))
+        if (User::checkIfUserIsAHost($request))
         {
-            return Helpers::result(true, "This user hasn't uploaded any items", 200);
+            return 'true';
         }
-
-        $items = User::find(User::getUserID($request))->item->all();
-        $response = [];
-        foreach($items as $item)
-        {
-            $withoutImages = $item->only('name', 'description', 'stock', 'cost', 'unit_price');
-            $addedImagesLink = array_add($withoutImages, 'images', asset('storage/upload/'.$item->images));
-            $response[$item->id] = $addedImagesLink;
-        }
-        return $response;
+        return 'false';
     }
 }
