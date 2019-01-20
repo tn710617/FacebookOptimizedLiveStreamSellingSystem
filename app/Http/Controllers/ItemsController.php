@@ -8,7 +8,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
 
-class ItemController extends Controller {
+class ItemsController extends Controller {
 
     public function create(Request $request)
     {
@@ -36,7 +36,7 @@ class ItemController extends Controller {
         if ($request->hasFile('images'))
         {
             $images = $request->file('images');
-            $fileName = time() . '.' . $request->name . '.' . $request->images->getClientOriginalExtension();
+            $fileName = time() . '.' . Helpers::createAUniqueChannelToken() . '.' . $request->images->getClientOriginalExtension();
             $images->move('../storage/app/public/upload/', $fileName);
             $items->images = $fileName;
             $items->save();
@@ -45,5 +45,23 @@ class ItemController extends Controller {
         }
 
         return Helpers::result(true, 'The item is successfully created', 200);
+    }
+
+    public function get(Request $request)
+    {
+        if(Item::checkIfAnyItemUploaded($request))
+        {
+            return Helpers::result(true, "This user hasn't uploaded any items", 200);
+        }
+
+        $items = User::find(User::getUserID($request))->item->all();
+        $response = [];
+        foreach($items as $item)
+        {
+            $withoutImages = $item->only('name', 'description', 'stock', 'cost', 'unit_price');
+            $addedImagesLink = array_add($withoutImages, 'images', asset('storage/upload/'.$item->images));
+            $response[$item->id] = $addedImagesLink;
+        }
+        return $response;
     }
 }

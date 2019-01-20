@@ -21,6 +21,7 @@ Route::post('/token', 'UsersController@refreshOrCreate');
 Route::middleware('tokenValidator')->group(function(){
     Route::get('/users', 'UsersController@get');
     Route::post('/test', 'TestController@test');
-    Route::post('/items', 'ItemController@create');
+    Route::post('/items', 'ItemsController@create');
     Route::post('/channel', 'LiveStreamController@start');
+    Route::get('/items', 'ItemsController@get');
 });
