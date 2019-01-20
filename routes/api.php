@@ -27,4 +27,6 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/items', 'ItemsController@get');
     Route::post('/streaming-items/{item}', 'LiveStreamController@streamAnItem');
     Route::get('/country-code', 'UsersController@getCountryAndPhoneCode');
+    Route::patch('/user-channel-id', 'LiveStreamController@join');
+    Route::get('/streaming-items/{channel}', 'LiveStreamController@show');
 });

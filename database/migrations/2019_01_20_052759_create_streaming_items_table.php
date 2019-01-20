@@ -16,7 +16,8 @@ class CreateStreamingItemsTable extends Migration
         Schema::create('streaming_items', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('item_id');
-            $table->integer('quantity');
+            $table->integer('remaining_quantity');
+            $table->integer('sold_quantity')->default(0);
             $table->integer('channel_id');
             $table->dateTime('started_at');
             $table->dateTime('ended_at')->nullable();
