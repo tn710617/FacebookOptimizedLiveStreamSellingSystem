@@ -37,11 +37,11 @@ class ItemController extends Controller {
         {
             $images = $request->file('images');
             $fileName = time() . '.' . $request->name . '.' . $request->images->getClientOriginalExtension();
-            $images->move('upload/', $fileName);
+            $images->move('../storage/app/public/upload/', $fileName);
             $items->images = $fileName;
             $items->save();
             Image::configure(array('driver' => 'gd'));
-            Image::make('upload/'. $fileName)->resize(300, 300)->save('upload/'.$fileName);
+            Image::make('../storage/app/public/upload/'.$fileName)->resize(300, 300)->save('../storage/app/public/upload/'.$fileName);
         }
 
         return Helpers::result(true, 'The item is successfully created', 200);
