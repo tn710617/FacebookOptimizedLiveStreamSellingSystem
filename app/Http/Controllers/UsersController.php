@@ -6,6 +6,7 @@ use App\Helpers;
 use App\Token;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller {
 
@@ -76,6 +77,17 @@ class UsersController extends Controller {
             ];
 
         return Helpers::result(true, $response, 200);
+    }
+
+    public function getCountryAndPhoneCode()
+    {
+        $datas = DB::table('country')->get();
+        $response = [];
+        foreach($datas as $data)
+        {
+            $response[$data->nicename] = ['country_code' => $data->iso, 'phone_code' => $data->phonecode];
+        }
+        return $response;
     }
 
 }
