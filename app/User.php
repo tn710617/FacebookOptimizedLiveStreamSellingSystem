@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'FB_id', 'host', 'id'
+        'name', 'email', 'password', 'FB_id', 'host', 'id', 'channel_id'
     ];
 
     /**
@@ -37,5 +37,14 @@ class User extends Authenticatable
     public static function getUserID(Request $request)
     {
         return Token::where('name', $request->bearerToken())->first()->user_id;
+    }
+
+    public static function checkIfUserInAChannel(Request $request)
+    {
+        if(User::where('id', self::getUserID($request))->first()->channel_id !== 0)
+        {
+            return true;
+        }
+        return false;
     }
 }

@@ -16,8 +16,11 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('/getData', 'FacebookPHPSDK@getData');
+
 Route::post('/token', 'UsersController@refreshOrCreate');
-Route::get('/users', 'UsersController@get');
-Route::post('/items', 'ItemController@create');
-Route::post('/test', 'TestController@test');
+Route::middleware('tokenValidator')->group(function(){
+    Route::get('/users', 'UsersController@get');
+    Route::post('/test', 'TestController@test');
+    Route::post('/items', 'ItemController@create');
+    Route::post('/channel', 'LiveStreamController@start');
+});

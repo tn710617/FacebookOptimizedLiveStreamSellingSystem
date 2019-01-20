@@ -75,4 +75,15 @@ class Helpers {
         }
     }
 
+    public static function createAUniqueChannelToken()
+    {
+        $checkTokenCount = 1;
+        while ($checkTokenCount)
+        {
+            $uniqueToken = str_random(6);
+            $checkTokenCount = Channel::where('name', $uniqueToken)->count();
+        }
+        return $uniqueToken;
+    }
+
 }

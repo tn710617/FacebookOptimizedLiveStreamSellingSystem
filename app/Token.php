@@ -11,7 +11,7 @@ class Token extends Model
     public static function checkIfTokenExists(Request $request)
     {
         $receivedToken = $request->bearerToken();
-        return self::where('name', $receivedToken)->count();
+        return Token::where('name', $receivedToken)->count();
     }
 
     public static function checkIfTokenExpired(Request $request)

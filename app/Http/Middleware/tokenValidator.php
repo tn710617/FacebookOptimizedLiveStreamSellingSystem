@@ -26,7 +26,7 @@ class tokenValidator {
 
         if ($whetherTokenExists > 0)
         {
-            if (Token::where('name', $request->bearerToken())->expiry_time->get() > time())
+            if (!Token::checkIfTokenExpired($request))
             {
                 return $next($request);
             }
