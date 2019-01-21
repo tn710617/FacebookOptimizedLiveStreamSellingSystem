@@ -59,7 +59,7 @@ class ItemsController extends Controller {
         foreach($items as $item)
         {
             $withoutImages = $item->only('name', 'description', 'stock', 'cost', 'unit_price');
-            $addedImagesLink = array_add($withoutImages, 'images', asset('storage/upload/'.$item->images));
+            $addedImagesLink = array_add($withoutImages, 'images', secure_asset('storage/upload/'.$item->images));
             $response[$item->id] = $addedImagesLink;
         }
         return $response;
