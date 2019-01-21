@@ -96,4 +96,14 @@ class LiveStreamController extends Controller {
             'sold_quantity' => $streaming_items->sold_quantity
         ], 200);
     }
+
+    public function end(Request $request)
+    {
+
+        if (User::checkIfUserInAChannel($request) && User::checkIfUserIsAHost($request))
+        {
+            return User::resetUserStatus($request);
+        }
+        return Helpers::result(false, 'The user has to be a host and in a channel', 400);
+    }
 }

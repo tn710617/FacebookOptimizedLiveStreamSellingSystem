@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -71,5 +72,19 @@ class User extends Authenticatable
     public static function getUser(Request $request)
     {
         return User::find(User::getUserID($request))->first();
+    }
+
+    public static function resetUserStatus(Request $request)
+    {
+        $seller = User::getUser($request);
+        $channel_id = User::getUserChannelId($request);
+        $buyers = User::where('channel_id', $channel_id)->get();
+        Channel::find($channel_id)->update(['ended_at' => Carbon::now()]);
+        foreach ($buyers as $buyer)
+        {
+            $buyer->update(['channel_id' => 0]);
+        }
+        $seller->update(['host' => 0]);
+        return Helpers::result(true, 'The designated channel has been terminated', 200);
     }
 }

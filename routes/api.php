@@ -29,5 +29,6 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/country-code', 'UsersController@getCountryAndPhoneCode');
     Route::patch('/user-channel-id', 'LiveStreamController@join');
     Route::get('/streaming-items/{channel}', 'LiveStreamController@show');
-    Route::post('orders/{item}', 'OrdersController@create');
+    Route::post('/orders/{item}', 'OrdersController@create');
+    Route::put('/user-channel-id', 'LiveStreamController@end');
 });
