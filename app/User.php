@@ -10,9 +10,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    public function recipient()
+    {
+        return $this->hasMany('App\Recipient');
+    }
     public function item()
     {
-        return $this->hasMany('App\item');
+        return $this->hasMany('App\Item');
     }
 
 

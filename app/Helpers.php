@@ -66,9 +66,9 @@ class Helpers {
 
         return $expiry_time;
     }
-    public static function validation(Array $toBeValidated, $FacebookResources)
+    public static function validation(Array $toBeValidatedCondition, $toBeValidatedContent)
     {
-        $validator = validator::make($FacebookResources->all(), $toBeValidated);
+        $validator = validator::make($toBeValidatedContent->all(), $toBeValidatedCondition);
         if ($validator->fails())
         {
             return $validator->errors()->first();

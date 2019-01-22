@@ -12,10 +12,11 @@ class TestController extends Controller
 {
     public function test(Request $request)
     {
-        if (User::checkIfUserIsAHost($request))
+        $a = 0;
+        if ($a === ' ')
         {
-            return 'true';
+            dd(true);
         }
-        return 'false';
+        dd(false);
     }
 }
