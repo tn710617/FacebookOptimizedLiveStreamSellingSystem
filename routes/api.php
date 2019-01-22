@@ -33,4 +33,5 @@ Route::middleware('tokenValidator')->group(function(){
     Route::put('/user-channel-id', 'LiveStreamController@end');
     Route::post('/recipients', 'UsersController@createNewRecipients');
     Route::get('/recipients', 'UsersController@getRecipients');
+    Route::patch('/recipients/{recipient}', 'UsersController@updateRecipients');
 });

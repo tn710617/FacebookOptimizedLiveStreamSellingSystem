@@ -139,7 +139,7 @@ class UsersController extends Controller {
     {
         if (Recipient::countRecipientQuantity($request) == 0)
         {
-            return Helpers::result(false, 'This user hasn\'t had any recipient\'s information yet', '400');
+            return Helpers::result(false, 'This user hasn\'t had any recipient\'s information yet', 400);
         }
         $recipients = Recipient::where('user_id', User::getUserID($request))->get();
         $response = [];
@@ -160,7 +160,44 @@ class UsersController extends Controller {
            $response[$recipient->id] = $information;
         }
        return Helpers::result(true, $response, 200);
+    }
 
+    public function updateRecipients(Request $request, Recipient $recipient)
+    {
+        if (Recipient::countRecipientQuantity($request) == 0)
+        {
+            return Helpers::result(false, 'This user hasn\'t had any recipient\'s information yet', 400);
+        }
+        $toBeValidatedCondition = [
+            'name'                 => 'required|string|max:255',
+            'phone.phone_code'     => 'required|string|max:5',
+            'phone.phone_number'   => 'required|string|min:5|max:20',
+            'address.country_code' => 'required|size:2',
+            'address.post_code'    => 'required|max:10',
+            'address.city'         => 'required|string|max:50',
+            'address.district'     => 'required|string|max:50',
+            'address.others'       => 'required|string|max:255'
+        ];
+        $failMessage = Helpers::validation($toBeValidatedCondition, $request);
+        if ($failMessage)
+        {
+            return Helpers::result(false, $failMessage, 400);
+        }
+
+        $recipient->phone->update([
+            'phone_code' => $request->phone['phone_code'],
+            'phone_number' => $request->phone['phone_number']
+        ]);
+
+        $recipient->update([
+            'name'         => $request->name,
+            'postcode'     => $request->address['post_code'],
+            'country_code' => $request->address['country_code'],
+            'city'         => $request->address['city'],
+            'district'     => $request->address['district'],
+            'others'       => $request->address['others']
+        ]);
+        return Helpers::result(true, 'The recipient\'s information has been successfully updated', 200);
     }
 
 }

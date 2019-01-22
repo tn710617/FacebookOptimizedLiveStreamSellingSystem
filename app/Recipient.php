@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class Recipient extends Model
 {
+    protected $fillable = ['name', 'postcode', 'country_code', 'city', 'district', 'others'];
+    public function phone()
+    {
+        return $this->hasOne('App\Phone', 'id', 'phone_id');
+    }
     //
     public static function countRecipientQuantity(Request $request)
     {
