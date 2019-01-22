@@ -58,7 +58,7 @@ class ItemsController extends Controller {
         $response = [];
         foreach($items as $item)
         {
-            $withoutImages = $item->only('name', 'description', 'stock', 'cost', 'unit_price');
+            $withoutImages = $item->only(['name', 'description', 'stock', 'cost', 'unit_price']);
             $addedImagesLink = array_add($withoutImages, 'images', secure_asset('storage/upload/'.$item->images));
             $response[$item->id] = $addedImagesLink;
         }

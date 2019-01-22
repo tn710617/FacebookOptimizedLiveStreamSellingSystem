@@ -135,4 +135,32 @@ class UsersController extends Controller {
         return Helpers::result(true, ['recipient_limit' => User::getUser($request)->recipient_quantity, 'created_recipients' => Recipient::countRecipientQuantity($request)], 200);
     }
 
+    public function getRecipients(Request $request)
+    {
+        if (Recipient::countRecipientQuantity($request) == 0)
+        {
+            return Helpers::result(false, 'This user hasn\'t had any recipient\'s information yet', '400');
+        }
+        $recipients = Recipient::where('user_id', User::getUserID($request))->get();
+        $response = [];
+        foreach($recipients as $recipient)
+        {
+            $information = [
+                'name' => $recipient->name,
+                'phone' => Phone::find($recipient->phone_id)->only('phone_code', 'phone_number'),
+                'address' =>
+                [
+                    'country_code' => $recipient->country_code,
+                    'post_code' => $recipient->postcode,
+                    'city' => $recipient->city,
+                    'district' => $recipient->district,
+                    'others' => $recipient->others
+                ]
+            ];
+           $response[$recipient->id] = $information;
+        }
+       return Helpers::result(true, $response, 200);
+
+    }
+
 }
