@@ -75,8 +75,17 @@ class UsersController extends Controller {
         $response = ['name'    => $me->getName(),
                      'email'   => $me->getEmail(),
                      'avatar'  => $me->getPicture()['url'],
-                     'user_id' => User::getUserID($request)
+                     'user_id' => User::getUserID($request),
+                     'phone'   => 'NULL'
         ];
+        if (User::checkIfUserHasAPhone($request))
+        {
+            $phone = User::getUser($request)->phone;
+            $response = array_replace($response, ['phone' => [
+                'phone_code' => $phone->phone_code,
+                'phone_number' => $phone->phone_number
+            ]]);
+        }
 
         return Helpers::result(true, $response, 200);
     }
@@ -143,23 +152,24 @@ class UsersController extends Controller {
         }
         $recipients = Recipient::where('user_id', User::getUserID($request))->get();
         $response = [];
-        foreach($recipients as $recipient)
+        foreach ($recipients as $recipient)
         {
             $information = [
-                'name' => $recipient->name,
-                'phone' => Phone::find($recipient->phone_id)->only('phone_code', 'phone_number'),
+                'name'    => $recipient->name,
+                'phone'   => Phone::find($recipient->phone_id)->only('phone_code', 'phone_number'),
                 'address' =>
-                [
-                    'country_code' => $recipient->country_code,
-                    'post_code' => $recipient->postcode,
-                    'city' => $recipient->city,
-                    'district' => $recipient->district,
-                    'others' => $recipient->others
-                ]
+                    [
+                        'country_code' => $recipient->country_code,
+                        'post_code'    => $recipient->postcode,
+                        'city'         => $recipient->city,
+                        'district'     => $recipient->district,
+                        'others'       => $recipient->others
+                    ]
             ];
-           $response[$recipient->id] = $information;
+            $response[$recipient->id] = $information;
         }
-       return Helpers::result(true, $response, 200);
+
+        return Helpers::result(true, $response, 200);
     }
 
     public function updateRecipients(Request $request, Recipient $recipient)
@@ -185,7 +195,7 @@ class UsersController extends Controller {
         }
 
         $recipient->phone->update([
-            'phone_code' => $request->phone['phone_code'],
+            'phone_code'   => $request->phone['phone_code'],
             'phone_number' => $request->phone['phone_number']
         ]);
 
@@ -197,7 +207,27 @@ class UsersController extends Controller {
             'district'     => $request->address['district'],
             'others'       => $request->address['others']
         ]);
+
         return Helpers::result(true, 'The recipient\'s information has been successfully updated', 200);
     }
 
+    public function update(Request $request)
+    {
+        $user = User::getUser($request);
+        if (User::checkIfUserHasAPhone($request))
+        {
+            $user->phone->update([
+                'phone_code'   => $request->phone['phone_code'],
+                'phone_number' => $request->phone['phone_number']
+            ]);
+        }
+        $phone = new Phone();
+        $phone->forceCreate([
+            'phone_code'   => $request->phone['phone_code'],
+            'phone_number' => $request->phone['phone_number']
+        ]);
+        $user->update(['phone_id' => $phone->id]);
+
+        return Helpers::result(true, 'User\'s information has been successfully updated', 200);
+    }
 }

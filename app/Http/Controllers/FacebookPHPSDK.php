@@ -11,7 +11,7 @@ class FacebookPHPSDK extends Controller {
     //
     public function getData(Request $request)
     {
-        $token =        $request->bearerToken();
+        $token = $request->bearerToken();
 //        if (isset($request->expirationDate))
 //        {
 //            $dt = Carbon::parse($request->expirationDate);
@@ -27,6 +27,8 @@ class FacebookPHPSDK extends Controller {
             'default_graph_version' => 'v3.2',
             //'default_access_token' => '{access-token}', // optional
         ]);
+        $fb->setExtendedAccessToken();
+        $fb->getAccessToken();
 
 // Use one of the helper classes to get a Facebook\Authentication\AccessToken entity.
 //   $helper = $fb->getRedirectLoginHelper();

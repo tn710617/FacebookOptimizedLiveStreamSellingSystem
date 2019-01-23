@@ -34,4 +34,5 @@ Route::middleware('tokenValidator')->group(function(){
     Route::post('/recipients', 'UsersController@createNewRecipients');
     Route::get('/recipients', 'UsersController@getRecipients');
     Route::patch('/recipients/{recipient}', 'UsersController@updateRecipients');
+    Route::put('/users', 'UsersController@update');
 });

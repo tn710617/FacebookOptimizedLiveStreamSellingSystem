@@ -10,6 +10,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    public function phone()
+    {
+        return $this->hasOne('App\Phone', 'id', 'phone_id');
+    }
+
     public function recipient()
     {
         return $this->hasMany('App\Recipient');
@@ -91,4 +96,14 @@ class User extends Authenticatable
         $seller->update(['host' => 0]);
         return Helpers::result(true, 'The designated channel has been terminated', 200);
     }
+
+    public static function checkIfUserHasAPhone(Request $request)
+    {
+        if(User::getUser($request)->phone_id !== null)
+        {
+            return true;
+        }
+        return false;
+    }
+
 }
