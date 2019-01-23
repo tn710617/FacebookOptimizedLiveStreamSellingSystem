@@ -65,4 +65,43 @@ class ItemsController extends Controller {
         }
         return $response;
     }
+
+
+    public function update(Request $request, Item $item)
+    {
+        $toBeValidated = [
+            'name'        => 'required|max:255',
+            'description' => 'max:255',
+            'stock'       => 'required|numeric|digits_between:1,10',
+            'cost'        => 'required|numeric|digits_between:1,10',
+            'unit_price'  => 'required|numeric|digits_between:1,10',
+            'images'      => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ];
+        if ($failMessage = Helpers::validation($toBeValidated, $request))
+        {
+            return Helpers::result(false, $failMessage, 400);
+        }
+
+        Item::where('id', $item->id)->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'stock' => $request->stock,
+            'cost' => $request->cost,
+            'unit_price' => $request->unit_price,
+        ]);
+
+        if ($request->hasFile('images'))
+        {
+            $images = $request->file('images');
+            $fileName = time() . '.' . Helpers::createAUniqueNumber() . '.' . $request->images->getClientOriginalExtension();
+            $images->move('../storage/app/public/upload/', $fileName);
+            $item->images = $fileName;
+            $item->save();
+            Image::configure(array('driver' => 'gd'));
+            Image::make('../storage/app/public/upload/'.$fileName)->resize(300, 300)->save('../storage/app/public/upload/'.$fileName);
+        }
+
+        return Helpers::result(true, 'The item is successfully updated', 200);
+    }
+
 }

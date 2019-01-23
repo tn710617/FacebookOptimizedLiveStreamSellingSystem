@@ -36,4 +36,5 @@ Route::middleware('tokenValidator')->group(function(){
     Route::patch('/recipients/{recipient}', 'UsersController@updateRecipients');
     Route::put('/users', 'UsersController@update');
     Route::put('/user-channel-id', 'LiveStreamController@leave');
+    Route::patch('/items/{item}', 'ItemsController@update');
 });
