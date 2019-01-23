@@ -30,7 +30,7 @@ class StreamingItem extends Model
 
     public static function checkIfRemainingQuantityEnough($number, $stock)
     {
-        if($stock > $number)
+        if($stock >= $number)
         {
             return true;
         }

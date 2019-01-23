@@ -20,4 +20,22 @@ class Channel extends Model
     {
         return $this->hasMany('App\StreamingItem');
     }
+
+    public static function checkIfChannelExists(Request $request)
+    {
+        if (Channel::where('name', $request->channel_token)->count() == 1)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public static function checkIfChannelHasEnded(Request $request)
+    {
+        if (Channel::where('name', $request->channel_token)->first()->ended_at !== NULL)
+        {
+            return true;
+        }
+        return false;
+    }
 }

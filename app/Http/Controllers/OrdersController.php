@@ -14,10 +14,21 @@ class OrdersController extends Controller
 {
     public function create(Request $request, Item $item)
     {
+        if(!User::checkIfUserInAChannel($request))
+        {
+            return Helpers::result(false, 'You have to be in a channel', 400);
+        }
+
+        if(User::checkIfUserIsAHost($request))
+        {
+            return Helpers::result(false, 'This operation is only allowed for buyers', 400);
+        }
+
         if(! StreamingItem::checkIfRemainingQuantityEnough($request->number, $item->stock))
         {
             return Helpers::result(false, 'The required quantity is not enough', 400);
         }
+
         $orderName = time().Helpers::createAUniqueNumber();
         $buyer = User::getUser($request);
         Order::forceCreate([

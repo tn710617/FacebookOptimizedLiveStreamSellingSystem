@@ -71,6 +71,17 @@ class LiveStreamController extends Controller {
         {
             return Helpers::result(false, 'You are currently holding a live-stream', 400);
         }
+
+        if(!Channel::checkIfChannelExists($request))
+        {
+            return Helpers::result(false, 'The channel doesn\'t exist', 400);
+        }
+
+        if(Channel::checkIfChannelHasEnded($request))
+        {
+            return Helpers::result(false, 'The channel was ended', 400);
+        }
+
         $channel = Channel::where('name', $request->channel_token)
             ->first();
         User::where('id', User::getUserID($request))->update(['channel_id' => $channel->id]);
