@@ -89,6 +89,21 @@ class LiveStreamController extends Controller {
         return Helpers::result(true, $channel->iFrame, 200);
     }
 
+    public function leave(Request $request)
+    {
+        if(!User::checkIfUserInAChannel($request))
+        {
+            return Helpers::result(false, 'You have to be in a channel', 400);
+        }
+        if(User::checkIfUserIsAHost($request))
+        {
+            return Helpers::result(false, 'You are currently holding a live-stream', 400);
+        }
+        User::resetAUserStatus($request);
+
+        return Helpers::result(true, 'You\'ve left the channel', 200);
+    }
+
     public function show(Request $request, Channel $channel)
     {
         if(!User::checkIfUserInAChannel($request))
@@ -113,7 +128,7 @@ class LiveStreamController extends Controller {
 
         if (User::checkIfUserInAChannel($request) && User::checkIfUserIsAHost($request))
         {
-            return User::resetUserStatus($request);
+            return User::resetUsersStatus($request);
         }
         return Helpers::result(false, 'The user has to be a host and in a channel', 400);
     }
