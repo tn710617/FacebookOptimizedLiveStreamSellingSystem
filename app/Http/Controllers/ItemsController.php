@@ -14,7 +14,7 @@ class ItemsController extends Controller {
     {
         $toBeValidated = [
             'name'        => 'required|max:255',
-            'description' => 'string|max:255',
+            'description' => 'max:255',
             'stock'       => 'required|numeric|digits_between:1,10',
             'cost'        => 'required|numeric|digits_between:1,10',
             'unit_price'  => 'required|numeric|digits_between:1,10',
@@ -43,6 +43,7 @@ class ItemsController extends Controller {
             Image::configure(array('driver' => 'gd'));
             Image::make('../storage/app/public/upload/'.$fileName)->resize(300, 300)->save('../storage/app/public/upload/'.$fileName);
         }
+        $items->save();
 
         return Helpers::result(true, 'The item is successfully created', 200);
     }
