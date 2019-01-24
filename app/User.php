@@ -83,7 +83,7 @@ class User extends Authenticatable {
 
     public static function getUser(Request $request)
     {
-        return User::find(User::getUserID($request))->first();
+        return User::find(User::getUserID($request));
     }
 
     public static function resetAUserStatus(Request $request)

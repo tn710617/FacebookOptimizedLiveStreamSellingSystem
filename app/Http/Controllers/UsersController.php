@@ -74,7 +74,7 @@ class UsersController extends Controller {
         $me = Helpers::getFacebookResources($request->bearerToken(), $endpoint);
         $response = ['name'    => $me->getName(),
                      'email'   => $me->getEmail(),
-                     'avatar'  => $me->getPicture()['url'],
+                     'avatar'  => 'https://graph.facebook.com/'.User::getUser($request)->FB_id.'/picture?type=large',
                      'user_id' => User::getUserID($request),
                      'phone'   => 'NULL'
         ];
