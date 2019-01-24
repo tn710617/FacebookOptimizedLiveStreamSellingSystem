@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Log;
 
-class LogMiddleware
+class sellingSystemLog
 {
     /**
      * Handle an incoming request.
@@ -17,7 +17,7 @@ class LogMiddleware
     public function handle($request, Closure $next)
     {
         $response = $next($request);
-        log::info($response);
+        log::info([$request->header(), $request->getMethod(), $request->getRequestUri(), $request->all(), $response->getStatusCode(), $response->getContent()]);
         return $response;
     }
 }
