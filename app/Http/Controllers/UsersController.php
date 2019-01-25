@@ -96,10 +96,10 @@ class UsersController extends Controller {
         $response = [];
         foreach ($datas as $data)
         {
-            $response[$data->nicename] = ['country_code' => $data->iso, 'phone_code' => $data->phonecode];
+            $response[] = ['country' => $data->nicename,'country_code' => $data->iso, 'phone_code' => $data->phonecode];
         }
 
-        return $response;
+        return Helpers::result('true', $response, 200);
     }
 
     public function createNewRecipients(Request $request)
