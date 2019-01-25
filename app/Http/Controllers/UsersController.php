@@ -155,6 +155,7 @@ class UsersController extends Controller {
         foreach ($recipients as $recipient)
         {
             $information = [
+                'recipient_id' => $recipient->id,
                 'name'    => $recipient->name,
                 'phone'   => Phone::find($recipient->phone_id)->only('phone_code', 'phone_number'),
                 'address' =>
@@ -166,7 +167,7 @@ class UsersController extends Controller {
                         'others'       => $recipient->others
                     ]
             ];
-            $response[$recipient->id] = $information;
+            $response[] = $information;
         }
 
         return Helpers::result(true, $response, 200);
