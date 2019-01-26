@@ -53,15 +53,22 @@ class UsersController extends Controller {
             return Helpers::result(true, 'The token is effective', 200);
         }
 
-        $user = new User();
-        $user->name = $me->getName();
-        $user->FB_id = $me->getId();
-        $user->email = $me->getEmail();
-        $user->save();
+        User::updateOrCreate(['FB_id' => $me->getId()],[
+            'id' => 0,
+            'name' => $me->getName(),
+            'email' => $me->getEmail(),
+            'expiry_time' => $expiry_time
+        ]);
+
+//        $user = new User();
+//        $user->name = $me->getName();
+//        $user->FB_id = $me->getId();
+//        $user->email = $me->getEmail();
+//        $user->save();
 
         Token::forceCreate([
             'name'        => $request->bearerToken(),
-            'user_id'     => $user->id,
+            'user_id'     => User::getUserIDViaFACEBOOK($me),
             'expiry_time' => $expiry_time
         ]);
 

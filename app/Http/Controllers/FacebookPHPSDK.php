@@ -56,7 +56,7 @@ class FacebookPHPSDK extends Controller {
 
         $me = $response->getGraphUser();
         dd($me);
-        echo 'Logged in as ' . $me->getEmail();
+        echo 'Logged in as ' . $me->getId();
     }
 
 }

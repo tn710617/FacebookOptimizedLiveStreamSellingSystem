@@ -38,6 +38,6 @@ class Token extends Model
 
     public static function checkIfUserExists($FacebookResources)
     {
-        return User::where('FB_id', $FacebookResources->getID())->count();
+        return User::where('FB_id', $FacebookResources->getId())->count();
     }
 }

@@ -48,7 +48,7 @@ class User extends Authenticatable {
 
     public static function getUserIDViaFACEBOOK($FacebookResources)
     {
-        return User::where('FB_id', $FacebookResources->getID())->first()->id;
+        return User::where('FB_id', $FacebookResources->getId())->first()->id;
     }
 
     public static function getUserID(Request $request)
