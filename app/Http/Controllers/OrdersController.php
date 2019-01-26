@@ -47,25 +47,26 @@ class OrdersController extends Controller
 
     public function get(Request $request)
     {
+        $response = Order::getAllPlacedOrders($request);
 
-        $orders = Order::getOrders($request);
+        return Helpers::result(true, $response, 200);
+    }
+
+    public function getOrdersInLatestChannel(Request $request)
+    {
+        if(!Order::checkIfUserPlacedOrders($request))
+            return Helpers::result(true, [], 200);
+        $channel_id = Order::getLatestChannelIdInOrderTable($request);
+        $orders = Order::getAllPlacedOrders($request);
         $response = [];
-        foreach($orders as $order)
+        foreach ($orders as $order)
         {
-            $response[] = [
-                'order' => $order->name,
-                'name' => $order->item_name,
-                'description' => $order->item_description,
-                'unit_price' => $order->unit_price,
-                'quantity' => $order->quantity,
-                'total_amount' => $order->total_amount,
-                'channel_id' => $order->channel_id,
-                'status' => $order->status,
-                'time' => $order->created_at->toCookieString(),
-                'images' => $order->images == NULL ? NULL :secure_asset('storage/upload'.$order->images)
-            ];
-        }
+            if($order['channel_id'] == $channel_id)
+            {
+                $response[] = $order;
+            }
 
+        }
         return Helpers::result(true, $response, 200);
     }
 
