@@ -52,7 +52,7 @@ class ItemsController extends Controller {
     {
         if(Item::checkIfAnyItemUploaded($request))
         {
-            return Helpers::result(true, "This user hasn't uploaded any items", 200);
+            return Helpers::result(true, [], 200);
         }
 
         $items = User::find(User::getUserID($request))->item->all();
