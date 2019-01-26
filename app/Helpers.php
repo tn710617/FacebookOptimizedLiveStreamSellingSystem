@@ -6,6 +6,8 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
@@ -85,5 +87,21 @@ class Helpers {
         }
         return $uniqueToken;
     }
+
+    public static function customizedPagination($array, Request $request, $per_page)
+    {
+        $page = Input::get('page', 1); // Get the ?page=1 from the url
+        $perPage = $per_page; // Number of items per page
+        $offset = ($page * $perPage) - $perPage;
+
+        return new LengthAwarePaginator(
+            array_slice($array, $offset, $perPage, true), // Only grab the items we need
+            count($array), // Total items
+            $perPage, // Items per page
+            $page, // Current page
+            ['path' => $request->url(), 'query' => $request->query()] // We need this so we can keep all old query parameters from the url
+        );
+    }
+
 
 }
