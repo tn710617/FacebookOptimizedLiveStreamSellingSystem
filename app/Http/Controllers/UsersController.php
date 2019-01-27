@@ -106,7 +106,7 @@ class UsersController extends Controller {
             $response[] = ['country' => $data->nicename,'country_code' => $data->iso, 'phone_code' => $data->phonecode];
         }
 
-        return Helpers::result('true', $response, 200);
+        return Helpers::result(true, $response, 200);
     }
 
     public function createNewRecipients(Request $request)
