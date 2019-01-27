@@ -8,53 +8,30 @@ use App\Token;
 use App\User;
 use Illuminate\Http\Request;
 
-class TestController extends Controller
-{
+class TestController extends Controller {
+
     public function test(Request $request)
     {
-        $token = $request->bearerToken();
-//        if (isset($request->expirationDate))
-//        {
-//            $dt = Carbon::parse($request->expirationDate);
-//        }
-//
-//        var_dump($dt->timestamp);
-//        var_dump((time()));
-//
-//        dd('123');
-        $fb = new \Facebook\Facebook([
-            'app_id'                => '326735094614431',
-            'app_secret'            => 'f55684b5977c0c3a684350a06535ee44',
-            'default_graph_version' => 'v3.2',
-            'default_access_token' => '{access-token}', // optional
-        ]);
-
-// Use one of the helper classes to get a Facebook\Authentication\AccessToken entity.
-   $helper = $fb->getRedirectLoginHelper();
-
-//   $helper = $fb->getJavaScriptHelper();
-//   $helper = $fb->getCanvasHelper();
-//   $helper = $fb->getPageTabHelper();
-
-        try
+        $channels = User::getUser($request)->channel;
+        $response = [];
+        foreach ($channels as $channel)
         {
-            // Get the \Facebook\GraphNodes\GraphUser object for the current user.
-            // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('me?fields=id,name,email,picture', $token);
-        } catch (\Facebook\Exceptions\FacebookResponseException $e)
-        {
-            // When Graph returns an error
-            echo 'Graph returned an error: ' . $e->getMessage();
-            exit;
-        } catch (\Facebook\Exceptions\FacebookSDKException $e)
-        {
-            // When validation fails or other local issues
-            echo 'Facebook SDK returned an error: ' . $e->getMessage();
-            exit;
+            $orders = $channel->order;
+            foreach ($orders as $order)
+                $response[] = [
+                    'order'   => $order->name,
+                    'user_id' => $order->id,
+                    'name' => $order->item_name,
+                    'description' => $order->item_description,
+                    'unit_price' => $order->unit_price,
+                    'quantity' => $order->quantity,
+                    'total_amount' => $order->amount,
+                    'channel_id' => $order->channel_id,
+                    'status' => $order->status,
+                    'time' => $order->created_at->toCookieString(),
+                    'images' => $order->images == NULL ? NULL : secure_asset('storage/upload/'.$order->images)
+                ];
         }
-
-
-        $me = $response->getGraphUser();
-        echo 'Logged in as ' . $me->getEmail();
+        return Helpers::result(true, $response, 200);
     }
 }

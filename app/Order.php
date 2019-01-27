@@ -27,7 +27,7 @@ class Order extends Model
         return Order::where('user_id', User::getUserID($request))->latest()->first()->channel_id;
     }
 
-    public static function getAllPlacedOrders(Request $request)
+    public static function getAllPlacedOrdersForBuyer(Request $request)
     {
         $orders = Order::getOrders($request);
         $response = [];
@@ -43,7 +43,7 @@ class Order extends Model
                 'channel_id' => $order->channel_id,
                 'status' => $order->status,
                 'time' => $order->created_at->toCookieString(),
-                'images' => $order->images == NULL ? NULL : secure_asset('storage/upload'.$order->images)
+                'images' => $order->images == NULL ? NULL : secure_asset('storage/upload/'.$order->images)
             ];
         }
         return $response;

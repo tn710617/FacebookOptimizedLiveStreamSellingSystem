@@ -9,6 +9,10 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable {
+    public function channel()
+    {
+        return $this->hasMany('App\Channel', 'user_id', 'id');
+    }
 
     public function phone()
     {

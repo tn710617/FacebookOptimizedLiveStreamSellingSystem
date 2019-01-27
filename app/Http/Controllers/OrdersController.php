@@ -45,9 +45,9 @@ class OrdersController extends Controller
         return Helpers::result(true, 'Your order has been successfully placed', 200);
     }
 
-    public function get(Request $request)
+    public function getForBuyer(Request $request)
     {
-        $response = Order::getAllPlacedOrders($request);
+        $response = Order::getAllPlacedOrdersForBuyer($request);
 
         return Helpers::result(true, $response, 200);
     }
@@ -57,7 +57,7 @@ class OrdersController extends Controller
         if(!Order::checkIfUserPlacedOrders($request))
             return Helpers::result(true, [], 200);
         $channel_id = Order::getLatestChannelIdInOrderTable($request);
-        $orders = Order::getAllPlacedOrders($request);
+        $orders = Order::getAllPlacedOrdersForBuyer($request);
         $response = [];
         foreach ($orders as $order)
         {
@@ -66,6 +66,31 @@ class OrdersController extends Controller
                 $response[] = $order;
             }
 
+        }
+        return Helpers::result(true, $response, 200);
+    }
+
+    public function getSellerOrders(Request $request)
+    {
+        $channels = User::getUser($request)->channel;
+        $response = [];
+        foreach ($channels as $channel)
+        {
+            $orders = $channel->order;
+            foreach ($orders as $order)
+                $response[] = [
+                    'order'   => $order->name,
+                    'user_id' => $order->id,
+                    'name' => $order->item_name,
+                    'description' => $order->item_description,
+                    'unit_price' => $order->unit_price,
+                    'quantity' => $order->quantity,
+                    'total_amount' => $order->amount,
+                    'channel_id' => $order->channel_id,
+                    'status' => $order->status,
+                    'time' => $order->created_at->toCookieString(),
+                    'images' => $order->images == NULL ? NULL : secure_asset('storage/upload/'.$order->images)
+                ];
         }
         return Helpers::result(true, $response, 200);
     }

@@ -16,6 +16,11 @@ class Channel extends Model
         'ended_at',
     ];
 
+    public function order()
+    {
+        return $this->hasMany('App\Order', 'channel_id', 'id');
+    }
+
     public function streaming_item()
     {
         return $this->hasMany('App\StreamingItem');
