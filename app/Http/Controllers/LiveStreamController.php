@@ -72,7 +72,7 @@ class LiveStreamController extends Controller {
             return Helpers::result(false, 'You are currently holding a live-stream', 400);
         }
 
-        if(!Channel::checkIfChannelExists($request))
+        if(!Channel::checkIfChannelExistsWithChannelToken($request))
         {
             return Helpers::result(false, 'The channel doesn\'t exist', 400);
         }
@@ -131,5 +131,27 @@ class LiveStreamController extends Controller {
             return User::resetUsersStatus($request);
         }
         return Helpers::result(false, 'The user has to be a host and in a channel', 400);
+    }
+
+    public function get(Request $request)
+    {
+        if(!Channel::checkIfChannelExistsWithUserId($request))
+        {
+            return Helpers::result(true, [], 200);
+        }
+        $response = [];
+        $channels = Channel::where('user_id', User::getUserID($request))->get();
+        foreach ($channels as $channel)
+        {
+            $response[] = [
+                'user_id' => $channel->user_id,
+                'channel_token' => $channel->name,
+                'iFrame' => $channel->iFrame,
+                'started_at' => Carbon::parse($channel->started_at)->toCookieString(),
+                'ended_at' => Carbon::parse($channel->ended_at)->toCookieString(),
+                'channel_description' => $channel->channel_description,
+            ];
+        }
+        return Helpers::result(true, $response, 200);
     }
 }

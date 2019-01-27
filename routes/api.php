@@ -39,4 +39,5 @@ Route::middleware('tokenValidator')->group(function(){
     Route::patch('/items/{item}', 'ItemsController@update');
     Route::get('/orders', 'OrdersController@get');
     Route::get('/latest-channel-orders', 'OrdersController@getOrdersInLatestChannel');
+    Route::get('/channels', 'LiveStreamController@get');
 });
