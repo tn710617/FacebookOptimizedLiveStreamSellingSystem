@@ -60,7 +60,7 @@ class ItemsController extends Controller {
         foreach($items as $item)
         {
             $withoutImages = $item->only(['id', 'name', 'description', 'stock', 'cost', 'unit_price']);
-            $addedImagesLink = array_add($withoutImages, 'images', secure_asset('storage/upload/'.$item->images));
+            $addedImagesLink = array_add($withoutImages, 'images', $item->images == null ? null : secure_asset('storage/upload/'.$item->images));
             $response[] = $addedImagesLink;
         }
         return Helpers::result(true, $response, 200);
