@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Channel;
 use App\Helpers;
 use App\Item;
 use App\Order;
@@ -67,6 +68,20 @@ class OrdersController extends Controller
     {
         $response = User::getUser($request)->getAllSellerOrders();
         return Helpers::result(true, $response, 200 );
+
+    }
+
+    public function getSellerOrder(Request $request, Channel $channel)
+    {
+
+        if($channel->user_id !== User::getUserID($request))
+            return Helpers::result(false, 'Invalid parameters', 400);
+        if($channel->order->count() == 0)
+            return Helpers::result(true, '[]',200);
+
+        $orders = $channel->order;
+        $response = Order::foreachOrders($orders);
+        return Helpers::result(true, $response, 200);
 
     }
 

@@ -41,4 +41,5 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/latest-channel-orders', 'OrdersController@getOrdersInLatestChannel');
     Route::get('/channels', 'LiveStreamController@get');
     Route::get('/seller-orders', 'OrdersController@getSellerOrders');
+    Route::get('/seller-order/{channel}', 'OrdersController@getSellerOrder');
 });

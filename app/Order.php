@@ -67,11 +67,11 @@ class Order extends Model {
         return $response;
     }
 
-
     public static function getOrdersInLatestChannel(Request $request)
     {
         $latestOrder = Order::where('user_id', User::getUserID($request))->latest()->first();
 
         return Order::where('channel_id', $latestOrder->channel_id)->where('user_id', User::getUserID($request))->get();
     }
+
 }
