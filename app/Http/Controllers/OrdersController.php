@@ -45,9 +45,10 @@ class OrdersController extends Controller
         return Helpers::result(true, 'Your order has been successfully placed', 200);
     }
 
-    public function getForBuyer(Request $request)
+    public function getBuyerOrders(Request $request)
     {
-        $response = Order::getAllPlacedOrdersForBuyer($request);
+        $orders = User::getUser($request)->order;
+        $response = Order::foreachOrders($orders);
 
         return Helpers::result(true, $response, 200);
     }
@@ -56,43 +57,17 @@ class OrdersController extends Controller
     {
         if(!Order::checkIfUserPlacedOrders($request))
             return Helpers::result(true, [], 200);
-        $channel_id = Order::getLatestChannelIdInOrderTable($request);
-        $orders = Order::getAllPlacedOrdersForBuyer($request);
-        $response = [];
-        foreach ($orders as $order)
-        {
-            if($order['channel_id'] == $channel_id)
-            {
-                $response[] = $order;
-            }
 
-        }
+        $orders = Order::getOrdersInLatestChannel($request);
+        $response = Order::foreachOrders($orders);
         return Helpers::result(true, $response, 200);
     }
 
     public function getSellerOrders(Request $request)
     {
-        $channels = User::getUser($request)->channel;
-        $response = [];
-        foreach ($channels as $channel)
-        {
-            $orders = $channel->order;
-            foreach ($orders as $order)
-                $response[] = [
-                    'order'   => $order->name,
-                    'user_id' => $order->id,
-                    'name' => $order->item_name,
-                    'description' => $order->item_description,
-                    'unit_price' => $order->unit_price,
-                    'quantity' => $order->quantity,
-                    'total_amount' => $order->amount,
-                    'channel_id' => $order->channel_id,
-                    'status' => $order->status,
-                    'time' => $order->created_at->toCookieString(),
-                    'images' => $order->images == NULL ? NULL : secure_asset('storage/upload/'.$order->images)
-                ];
-        }
-        return Helpers::result(true, $response, 200);
+        $response = User::getUser($request)->getAllSellerOrders();
+        return Helpers::result(true, $response, 200 );
+
     }
 
 }

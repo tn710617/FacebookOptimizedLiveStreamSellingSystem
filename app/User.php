@@ -14,6 +14,11 @@ class User extends Authenticatable {
         return $this->hasMany('App\Channel', 'user_id', 'id');
     }
 
+    public function order()
+    {
+        return $this->hasMany('App\Order', 'user_id', 'id');
+    }
+
     public function phone()
     {
         return $this->hasOne('App\Phone', 'id', 'phone_id');
@@ -121,4 +126,11 @@ class User extends Authenticatable {
         return false;
     }
 
+    public function getAllSellerOrders()
+    {
+        $channels_id = $this->channel->pluck('id');
+        $orders = Order::whereIn('channel_id', $channels_id)->get();
+        $response = Order::foreachOrders($orders);
+        return $response;
+    }
 }
