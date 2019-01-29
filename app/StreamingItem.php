@@ -8,7 +8,7 @@ class StreamingItem extends Model
 {
     public function item()
     {
-        return $this->belongsTo('App\Item');
+        return $this->belongsTo('App\Item', 'item_id', 'id');
     }
     public function channel ()
     {
@@ -44,5 +44,15 @@ class StreamingItem extends Model
         $item->update(['stock' => $stock - $number]);
         $streamingItem->remaining_quantity = $item->stock;
         $streamingItem->save();
+    }
+
+    public static function checkIfItemOnStream(StreamingItem $streamingItem, Item $item)
+    {
+        if((($streamingItem->item->name) === ($item->name)) && (($streamingItem->item->description) === ($item->description)))
+        {
+            return true;
+        }
+
+        return false;
     }
 }

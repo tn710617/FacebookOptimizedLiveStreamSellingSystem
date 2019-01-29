@@ -19,6 +19,7 @@ class CreateOrdersTable extends Migration
             $table->integer('user_id');
             $table->string('item_name');
             $table->string('item_description');
+            $table->integer('cost');
             $table->integer('unit_price');
             $table->integer('quantity');
             $table->integer('total_amount');
