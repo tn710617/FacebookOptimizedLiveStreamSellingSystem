@@ -75,7 +75,7 @@ class ItemsController extends Controller {
             'stock'       => 'required|numeric|digits_between:1,10',
             'cost'        => 'required|numeric|digits_between:1,10',
             'unit_price'  => 'required|numeric|digits_between:1,10',
-            'images'      => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images'      => 'image|mimes:jpeg,png,jpg,gif,svg|max:6144',
         ];
         if ($failMessage = Helpers::validation($toBeValidated, $request))
         {
