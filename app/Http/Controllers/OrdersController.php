@@ -98,7 +98,7 @@ class OrdersController extends Controller {
         return Helpers::result(true, $response, 200);
     }
 
-    public function getSoldItems(Request $request)
+    public function getSoldItems(Request $request, Channel $channel)
     {
         $channel_IDs = User::getUser($request)->getAllSellerChannelID();
 
@@ -109,6 +109,21 @@ class OrdersController extends Controller {
             $objectsToArrays = Helpers::convertObjectsToArrays($collectionToArray);
 
             $response = Helpers::turnStringToInt($objectsToArrays, $response = []);
+
+        return Helpers::result(true, $response, 200);
+    }
+
+    public function getSoldItemsPerChannel(Request $request, Channel $channel)
+    {
+        $channel_ID = $channel->id;
+
+        $rawInformation = Order::getProfitInDetailPerChannel($channel_ID);
+
+        $collectionToArray = $rawInformation->toArray();
+
+        $objectsToArrays = Helpers::convertObjectsToArrays($collectionToArray);
+
+        $response = Helpers::turnStringToInt($objectsToArrays, $response = []);
 
         return Helpers::result(true, $response, 200);
     }
