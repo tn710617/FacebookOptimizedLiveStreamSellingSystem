@@ -55,7 +55,7 @@ class ItemsController extends Controller {
             return Helpers::result(true, [], 200);
         }
 
-        $items = User::find(User::getUserID($request))->item->all();
+        $items = Item::orderBy('created_at', 'desc')->where('user_id', User::getUserID($request))->get();
         $response = [];
         foreach($items as $item)
         {
