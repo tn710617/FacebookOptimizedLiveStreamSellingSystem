@@ -104,4 +104,12 @@ class ItemsController extends Controller {
         return Helpers::result(true, 'The item is successfully updated', 200);
     }
 
+    public function destroy(Request $request, Item $item)
+    {
+        Item::destroy($item->id);
+        if (User::getUserID($request) !== $item->user_id)
+            return Helpers::result(false, 'Invalid parameters', 400);
+        return Helpers::result(true, 'The item has been successfully deleted', 200);
+    }
+
 }

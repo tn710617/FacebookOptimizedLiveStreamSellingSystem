@@ -85,7 +85,7 @@ class OrdersController extends Controller {
 
     }
 
-    public function getSellerOrder(Request $request, Channel $channel)
+    public function getSellerOrdersPerChannel(Request $request, Channel $channel)
     {
         if ($channel->user_id !== User::getUserID($request))
             return Helpers::result(false, 'Invalid parameters', 400);
