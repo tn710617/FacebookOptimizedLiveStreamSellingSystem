@@ -103,5 +103,30 @@ class Helpers {
         );
     }
 
+    public static function convertObjectsToArrays($objects)
+    {
+        return array_map(function($object){
+            return (array) $object;
+        }, $objects);
+    }
+
+    public static function turnStringToInt($arrays, $response)
+    {
+        foreach ($arrays as $array)
+        {
+            foreach ($array as $key => $value)
+            {
+                if(($key == 'cost') || ($key == 'total_cost') || ($key == 'quantity') || ($key == 'turnover') || ($key == 'profit') || ($key == 'unit_price'))
+                {
+                    $individual[$key] = intval($value);
+                    continue;
+                }
+                $individual[$key] = $value;
+            }
+            $response[] = $individual;
+        }
+        return $response;
+
+    }
 
 }

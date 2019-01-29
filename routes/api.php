@@ -42,4 +42,5 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/channels', 'LiveStreamController@get');
     Route::get('/seller-orders', 'OrdersController@getSellerOrders');
     Route::get('/seller-order/{channel}', 'OrdersController@getSellerOrder');
+    Route::get('/sold-items', 'OrdersController@getSoldItems');
 });

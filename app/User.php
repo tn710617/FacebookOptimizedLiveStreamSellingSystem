@@ -128,9 +128,14 @@ class User extends Authenticatable {
 
     public function getAllSellerOrders()
     {
-        $channels_id = $this->channel->pluck('id');
+        $channels_id = $this->getAllSellerChannelID();
         $orders = Order::whereIn('channel_id', $channels_id)->get();
         $response = Order::foreachOrders($orders);
         return $response;
+    }
+
+    public function getAllSellerChannelID()
+    {
+        return $this->channel->pluck('id');
     }
 }

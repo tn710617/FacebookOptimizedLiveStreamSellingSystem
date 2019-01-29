@@ -11,6 +11,7 @@ use App\Token;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 
 class OrdersController extends Controller {
@@ -32,6 +33,9 @@ class OrdersController extends Controller {
         if ((!StreamingItem::checkIfItemOnStream($streamingItem, $item)))
             return Helpers::result(false, 'The item is not currently on the stream', 400);
 
+        $total_cost = $item->cost * $request->number;
+        $total_amount = $item->unit_price * $request->number;
+        $profit = $total_amount - $total_cost;
         $orderName = time() . Helpers::createAUniqueNumber();
         Order::forceCreate([
             'name'             => $orderName,
@@ -40,8 +44,10 @@ class OrdersController extends Controller {
             'item_description' => $item->description,
             'unit_price'       => $item->unit_price,
             'cost'             => $item->cost,
+            'total_cost'       => $item->cost * $request->number,
+            'profit'           => $profit,
             'quantity'         => $request->number,
-            'total_amount'     => $item->unit_price * $request->number,
+            'total_amount'     => $total_amount,
             'channel_id'       => $buyer->channel_id,
             'images'           => $item->images
         ]);
@@ -66,7 +72,7 @@ class OrdersController extends Controller {
             return Helpers::result(true, [], 200);
 
         $orders = Order::getOrdersInLatestChannel($request);
-       $response = Order::foreachOrders($orders);
+        $response = Order::foreachOrders($orders);
 
         return Helpers::result(true, $response, 200);
     }
@@ -81,7 +87,6 @@ class OrdersController extends Controller {
 
     public function getSellerOrder(Request $request, Channel $channel)
     {
-
         if ($channel->user_id !== User::getUserID($request))
             return Helpers::result(false, 'Invalid parameters', 400);
         if ($channel->order->count() == 0)
@@ -91,7 +96,21 @@ class OrdersController extends Controller {
         $response = Order::foreachOrders($orders);
 
         return Helpers::result(true, $response, 200);
+    }
 
+    public function getSoldItems(Request $request)
+    {
+        $channel_IDs = User::getUser($request)->getAllSellerChannelID();
+
+        $rawInformation = Order::getProfitInDetail($channel_IDs);
+
+        $collectionToArray = $rawInformation->toArray();
+
+            $objectsToArrays = Helpers::convertObjectsToArrays($collectionToArray);
+
+            $response = Helpers::turnStringToInt($objectsToArrays, $response = []);
+
+        return Helpers::result(true, $response, 200);
     }
 
 }
