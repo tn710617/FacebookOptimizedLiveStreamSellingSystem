@@ -219,6 +219,14 @@ class UsersController extends Controller {
         return Helpers::result(true, 'The recipient\'s information has been successfully updated', 200);
     }
 
+    public function destroyRecipients(Request $request, Recipient $recipient)
+    {
+        Recipient::destroy($recipient->id);
+        if(User::getUserID($request) !== $recipient->user_id)
+            return Helpers::result(false, 'Invalid parameters', 400);
+        return Helpers::result(true, 'The recipient has been successfully deleted', 200);
+    }
+
     public function update(Request $request)
     {
         $user = User::getUser($request);
