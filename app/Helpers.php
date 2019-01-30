@@ -110,23 +110,15 @@ class Helpers {
         }, $objects);
     }
 
-    public static function turnStringToInt($arrays, $response)
+    public static function convertStringToIntAmongObjects($objects, $toBeConvertedKeys)
     {
-        foreach ($arrays as $array)
+        foreach ($objects as $object)
         {
-            foreach ($array as $key => $value)
+            foreach ($toBeConvertedKeys as $toBeConvertedKey)
             {
-                if(($key == 'cost') || ($key == 'total_cost') || ($key == 'quantity') || ($key == 'turnover') || ($key == 'profit') || ($key == 'unit_price'))
-                {
-                    $individual[$key] = intval($value);
-                    continue;
-                }
-                $individual[$key] = $value;
+                $object->$toBeConvertedKey = (int) $object->$toBeConvertedKey;
             }
-            $response[] = $individual;
         }
-        return $response;
-
+        return $objects;
     }
-
 }

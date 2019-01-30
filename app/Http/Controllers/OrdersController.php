@@ -7,12 +7,8 @@ use App\Helpers;
 use App\Item;
 use App\Order;
 use App\StreamingItem;
-use App\Token;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
 
 class OrdersController extends Controller {
 
@@ -98,17 +94,14 @@ class OrdersController extends Controller {
         return Helpers::result(true, $response, 200);
     }
 
-    public function getSoldItems(Request $request, Channel $channel)
+    public function getSoldItems(Request $request)
     {
         $channel_IDs = User::getUser($request)->getAllSellerChannelID();
 
         $rawInformation = Order::getProfitInDetail($channel_IDs);
 
-        $collectionToArray = $rawInformation->toArray();
-
-            $objectsToArrays = Helpers::convertObjectsToArrays($collectionToArray);
-
-            $response = Helpers::turnStringToInt($objectsToArrays, $response = []);
+        $toBeConverteds = ['cost', 'unit_price', 'profit', 'total_cost', 'quantity', 'turnover'];
+        $response = Helpers::convertStringToIntAmongObjects($rawInformation, $toBeConverteds);
 
         return Helpers::result(true, $response, 200);
     }
@@ -119,11 +112,8 @@ class OrdersController extends Controller {
 
         $rawInformation = Order::getProfitInDetailPerChannel($channel_ID);
 
-        $collectionToArray = $rawInformation->toArray();
-
-        $objectsToArrays = Helpers::convertObjectsToArrays($collectionToArray);
-
-        $response = Helpers::turnStringToInt($objectsToArrays, $response = []);
+        $toBeConverteds = ['cost', 'unit_price', 'profit', 'total_cost', 'quantity', 'turnover'];
+        $response = Helpers::convertStringToIntAmongObjects($rawInformation, $toBeConverteds);
 
         return Helpers::result(true, $response, 200);
     }
