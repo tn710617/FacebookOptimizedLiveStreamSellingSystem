@@ -33,7 +33,7 @@ Route::middleware('tokenValidator')->group(function(){
     Route::post('/orders/{item}', 'OrdersController@create');
     Route::put('/users-channel-id', 'LiveStreamController@end');
     Route::post('/recipients', 'UsersController@createNewRecipients');
-    Route::delete('/recipients/{recipient}', 'UsersController@destroyRecipients');
+    Route::delete('/recipients', 'UsersController@destroyRecipients');
     Route::get('/recipients', 'UsersController@getRecipients');
     Route::patch('/recipients/{recipient}', 'UsersController@updateRecipients');
     Route::put('/users', 'UsersController@update');
