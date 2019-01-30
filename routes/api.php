@@ -25,7 +25,7 @@ Route::middleware('tokenValidator')->group(function(){
     Route::post('/items', 'ItemsController@create');
     Route::post('/channel', 'LiveStreamController@start');
     Route::get('/items', 'ItemsController@get');
-    Route::delete('/items/{item}', 'ItemsController@destroy');
+    Route::delete('/items', 'ItemsController@destroy');
     Route::post('/streaming-items/{item}', 'LiveStreamController@streamAnItem');
     Route::get('/country-code', 'UsersController@getCountryAndPhoneCode');
     Route::patch('/user-channel-id', 'LiveStreamController@join');

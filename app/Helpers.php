@@ -5,6 +5,7 @@ namespace App;
 
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Input;
@@ -120,5 +121,29 @@ class Helpers {
             }
         }
         return $objects;
+    }
+
+    public static function checkIfIDExists(Request $request, Model $model, $IDs)
+    {
+        foreach ($request->$IDs as $ID)
+        {
+            if ($model::where('id', $ID)->count() == 0)
+                return false;
+        }
+
+        return true;
+    }
+
+    public static function checkIfBelongToTheUser(Request $request, Model $model, $IDs)
+    {
+        foreach ($request->$IDs as $ID)
+        {
+            if (User::getUserID($request) !== $model::getUserID($ID))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -27,4 +27,10 @@ class Item extends Model
         $items = (User::find(User::getUserID($request))->item);
         return $items->isEmpty();
     }
+
+    public static function getUserID($item_id)
+    {
+        return static::where('id', $item_id)->first()->user_id;
+    }
+
 }

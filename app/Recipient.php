@@ -15,6 +15,11 @@ class Recipient extends Model
     //
     public static function countRecipientQuantity(Request $request)
     {
-        return Recipient::where('user_id', User::getUserID($request))->get()->count();
+        return static::where('user_id', User::getUserID($request))->get()->count();
+    }
+
+    public static function getUserID($recipient)
+    {
+        return static::where('id', $recipient)->first()->user_id;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers;
 use App\Item;
+use App\Recipient;
 use App\User;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -104,11 +105,14 @@ class ItemsController extends Controller {
         return Helpers::result(true, 'The item is successfully updated', 200);
     }
 
-    public function destroy(Request $request, Item $item)
+    public function destroy(Request $request)
     {
-        Item::destroy($item->id);
-        if (User::getUserID($request) !== $item->user_id)
+        if(!Helpers::checkIfIDExists($request, new Item, 'items'))
             return Helpers::result(false, 'Invalid parameters', 400);
+        if(!Helpers::checkIfBelongToTheUser($request, new Item(), 'items'))
+            return Helpers::result(false, 'Invalid parameters', 400);
+
+        Item::destroy($request->items);
         return Helpers::result(true, 'The item has been successfully deleted', 200);
     }
 
