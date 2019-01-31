@@ -61,7 +61,15 @@ class Order extends Model {
                 'channel_id'   => $order->channel_id,
                 'status'       => $order->status,
                 'time'         => $order->created_at->toCookieString(),
-                'images'       => $order->images == null ? null : secure_asset('storage/upload/' . $order->images)
+                'images'       => $order->images == null ? null : secure_asset('storage/upload/' . $order->images),
+                'recipient'    => $order->recipient,
+                'phone_code'   => $order->phone_code,
+                'phone_number' => $order->phone_number,
+                'post_code'    => $order->post_code,
+                'country'      => $order->country,
+                'city'         => $order->city,
+                'district'     => $order->district,
+                'others'       => $order->others,
             ];
         }
 
@@ -77,7 +85,7 @@ class Order extends Model {
 
     public static function getProfitInDetail($channel_ID)
     {
-         return DB::table('orders')
+        return DB::table('orders')
             ->select(DB::raw('item_name, item_description, round(avg(cost)) as cost, round(avg(unit_price)) as unit_price, sum(profit) as profit, sum(total_cost) as total_cost, sum(quantity) as quantity, sum(total_amount) as turnover'))
             ->whereIn('channel_id', $channel_ID)
             ->groupBy('item_name', 'item_description', 'cost', 'unit_price')
