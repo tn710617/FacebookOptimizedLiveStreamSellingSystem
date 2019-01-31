@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class StreamingItem extends Model
 {
@@ -52,7 +53,15 @@ class StreamingItem extends Model
         {
             return true;
         }
-
         return false;
+    }
+
+    public static function checkIfAnyItemsOnStream(Request $request)
+    {
+        if((StreamingItem::where('channel_id', User::getUserChannelId($request))->count()) == 0)
+        {
+            return false;
+        }
+        return true;
     }
 }

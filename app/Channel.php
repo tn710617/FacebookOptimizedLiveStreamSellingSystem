@@ -52,4 +52,5 @@ class Channel extends Model
         }
         return false;
     }
+
 }

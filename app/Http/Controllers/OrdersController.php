@@ -6,13 +6,15 @@ use App\Channel;
 use App\Helpers;
 use App\Item;
 use App\Order;
+use App\Recipient;
 use App\StreamingItem;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrdersController extends Controller {
 
-    public function create(Request $request, Item $item)
+    public function create(Request $request, Item $item, Recipient $recipient)
     {
         if (!User::checkIfUserInAChannel($request))
             return Helpers::result(false, 'You have to be in a channel', 400);
@@ -23,7 +25,14 @@ class OrdersController extends Controller {
         if (!StreamingItem::checkIfRemainingQuantityEnough($request->number, $item->stock))
             return Helpers::result(false, 'The required quantity is not enough', 400);
 
+        if (!StreamingItem::checkIfAnyItemsOnStream($request))
+            return Helpers::result(false, 'There are no any items on stream', 400);
+
         $buyer = User::getUser($request);
+
+        if ($recipient->user_id !== $buyer->id)
+            return Helpers::result(false, 'The recipient doesn\'t belong to the user', 400);
+
         $streamingItem = StreamingItem::getStreamingItems($buyer->channel_id);
 
         if ((!StreamingItem::checkIfItemOnStream($streamingItem, $item)))
@@ -45,7 +54,15 @@ class OrdersController extends Controller {
             'quantity'         => $request->number,
             'total_amount'     => $total_amount,
             'channel_id'       => $buyer->channel_id,
-            'images'           => $item->images
+            'images'           => $item->images,
+            'recipient'        => $recipient->name,
+            'phone_code'       => $recipient->phone->phone_code,
+            'phone_number'     => $recipient->phone->phone_number,
+            'post_code'        => $recipient->postcode,
+            'country'          => DB::table('country')->where('iso', $recipient->country_code)->first()->nicename,
+            'city'             => $recipient->city,
+            'district'         => $recipient->district,
+            'others'           => $recipient->others,
         ]);
 
 
