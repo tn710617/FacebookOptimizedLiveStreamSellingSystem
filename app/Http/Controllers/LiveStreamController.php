@@ -14,6 +14,13 @@ class LiveStreamController extends Controller {
 
     public function start(Request $request)
     {
+        $toBeValidatedCondition = ['channel_description' => 'required|string|max:255'];
+        $failMessage = Helpers::validation($toBeValidatedCondition, $request);
+        if ($failMessage)
+        {
+            return Helpers::result(false, $failMessage, 400);
+        }
+
         if (User::checkIfUserInAChannel($request))
         {
             return Helpers::result(false, 'The user is already in a channel', 400);
