@@ -249,4 +249,10 @@ class UsersController extends Controller {
 
         return Helpers::result(true, 'User\'s information has been successfully updated', 200);
     }
+
+    public function getTaiwanPostCode(Request $request)
+    {
+        $response = DB::table('zipcode')->select('City', 'Area', 'ZipCode')->get();
+        return Helpers::result(true, $response, 200);
+    }
 }
