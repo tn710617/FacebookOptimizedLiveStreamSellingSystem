@@ -9,6 +9,7 @@ use App\Order;
 use App\Recipient;
 use App\StreamingItem;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -63,6 +64,8 @@ class OrdersController extends Controller {
             'city'             => $recipient->city,
             'district'         => $recipient->district,
             'others'           => $recipient->others,
+            'expiry_time' => Carbon::now()->addDays(3)->toDateTimeString(),
+            'to_be_deleted_time' => Carbon::now()->addDays(6)->toDateTimeString(),
         ]);
 
 

@@ -2,11 +2,16 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class Order extends Model {
+
+    protected $fillable = [
+        'status'
+    ];
 
     public function channel()
     {
@@ -60,6 +65,8 @@ class Order extends Model {
                 'total_amount' => $order->total_amount,
                 'channel_id'   => $order->channel_id,
                 'status'       => $order->status,
+                'effective'    => $order->effective,
+                'expiry_time'  => Carbon::parse($order->expiry_time)->toCookieString(),
                 'time'         => $order->created_at->toCookieString(),
                 'images'       => $order->images == null ? null : secure_asset('storage/upload/' . $order->images),
                 'recipient'    => $order->recipient,
@@ -99,5 +106,51 @@ class Order extends Model {
             ->where('channel_id', $channel_ID)
             ->groupBy('item_name', 'item_description', 'cost', 'unit_price')
             ->get();
+    }
+
+    public static function getTotalAmountForPayments($orders)
+    {
+        $totalAmount = 0;
+        foreach ($orders as $order)
+        {
+            $totalAmount += $order->total_amount;
+        }
+
+        return $totalAmount;
+    }
+
+    public static function getOrdersNameForPayments($orders)
+    {
+        $ordersArray = [];
+        foreach ($orders as $order)
+        {
+            $ordersArray[] = $order->name;
+        }
+
+        return implode(',', $ordersArray);
+    }
+
+    public static function getUserID($order_id)
+    {
+        return Order::where('id', $order_id)->first()->user_id;
+    }
+
+    public static function checkIfOrderPaid($orders)
+    {
+        foreach ($orders as $order)
+        {
+            if ($order->status == true)
+                return true;
+        }
+
+        return false;
+    }
+
+    public static function updateStatus($orderRelations)
+    {
+        foreach ($orderRelations as $orderRelation)
+        {
+            $orderRelation->order->update(['status' => 1]);
+        }
     }
 }

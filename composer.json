@@ -49,7 +49,8 @@
             "Tests\\": "tests/"
         },
         "files": [
-            "app/Helpers.php"
+            "app/Helpers.php",
+            "app/AllPay.Payment.Integration.php"
         ]
     },
     "minimum-stability": "dev",

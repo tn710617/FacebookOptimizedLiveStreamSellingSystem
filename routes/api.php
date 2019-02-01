@@ -18,10 +18,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/token', 'UsersController@refreshOrCreate');
+Route::post('/paymentsResponse', 'PaymentsController@receive');
 
 Route::middleware('tokenValidator')->group(function(){
-    Route::get('/users', 'UsersController@get');
     Route::post('/test', 'TestController@test');
+    Route::get('/users', 'UsersController@get');
     Route::post('/items', 'ItemsController@create');
     Route::post('/channel', 'LiveStreamController@start');
     Route::get('/items', 'ItemsController@get');
@@ -47,4 +48,6 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/sold-items', 'OrdersController@getSoldItems');
     Route::get('/sold-items/{channel}', 'OrdersController@getSoldItemsPerChannel');
     Route::get('/taiwan-post-code', 'UsersController@getTaiwanPostCode');
+    Route::post('/payments/{thirdPartyPaymentService}', 'PaymentsController@pay');
+    Route::get('/payment-services', 'PaymentsController@getPaymentService');
 });
