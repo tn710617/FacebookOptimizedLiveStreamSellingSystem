@@ -124,7 +124,10 @@ class LiveStreamController extends Controller {
         }
 
         return Helpers::result(true, [
-            'item_id' => $streaming_items->item_id,
+            'name' => $streaming_items->item->name,
+            'description' => $streaming_items->item->description,
+            'unit_price' => $streaming_items->item->unit_price,
+            'image' => $streaming_items->item->images,
             'remaining_quantity' => $streaming_items->remaining_quantity,
             'sold_quantity' => $streaming_items->sold_quantity
         ], 200);
