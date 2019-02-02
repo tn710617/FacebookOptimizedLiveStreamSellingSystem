@@ -117,7 +117,7 @@ class LiveStreamController extends Controller {
         {
             return Helpers::result(false, 'You have to be in a channel', 400);
         }
-        $streaming_items = StreamingItem::getStreamingItems($channel->id);
+        $streaming_items = StreamingItem::getStreamingItems(User::getUser($request)->channel_id);
         if($streaming_items == null)
         {
             return Helpers::result(false, 'You need to stream an item first', 400);
