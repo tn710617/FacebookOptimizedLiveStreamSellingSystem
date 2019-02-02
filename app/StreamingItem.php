@@ -44,6 +44,7 @@ class StreamingItem extends Model
         $stock = $item->stock;
         $item->update(['stock' => $stock - $number]);
         $streamingItem->remaining_quantity = $item->stock;
+        $streamingItem->sold_quantity = (($streamingItem->sold_quantity)+$number);
         $streamingItem->save();
     }
 
