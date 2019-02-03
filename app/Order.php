@@ -77,6 +77,8 @@ class Order extends Model {
                 'city'         => $order->city,
                 'district'     => $order->district,
                 'others'       => $order->others,
+                'effective'    => $order->effective,
+                'to_be_deleted_time' => Carbon::parse($order->to_be_deleted_time)->toCookieString()
             ];
         }
 
