@@ -93,6 +93,10 @@ class ItemsController extends Controller {
 
         if ($request->hasFile('images'))
         {
+            $oldFile = '../storage/app/public/upload/' . $item->images;
+            if(file_exists($oldFile))
+                unlink($oldFile);
+
             $images = $request->file('images');
             $fileName = time() . '.' . Helpers::createAUniqueNumber() . '.' . $request->images->getClientOriginalExtension();
             $images->move('../storage/app/public/upload/', $fileName);
@@ -101,6 +105,9 @@ class ItemsController extends Controller {
             Image::make('../storage/app/public/upload/' . $fileName)->resize(300, 300)->save('../storage/app/public/upload/' . $fileName);
         } else
         {
+            $oldFile = '../storage/app/public/upload/' . $item->images;
+            if(file_exists($oldFile))
+                unlink($oldFile);
             $item->images = NULL;
         }
 
