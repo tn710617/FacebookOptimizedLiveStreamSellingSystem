@@ -84,11 +84,11 @@ class ItemsController extends Controller {
         }
 
         Item::where('id', $item->id)->update([
-            'name' => $request->name,
+            'name'        => $request->name,
             'description' => $request->description,
-            'stock' => $request->stock,
-            'cost' => $request->cost,
-            'unit_price' => $request->unit_price,
+            'stock'       => $request->stock,
+            'cost'        => $request->cost,
+            'unit_price'  => $request->unit_price,
         ]);
 
         if ($request->hasFile('images'))
@@ -97,10 +97,14 @@ class ItemsController extends Controller {
             $fileName = time() . '.' . Helpers::createAUniqueNumber() . '.' . $request->images->getClientOriginalExtension();
             $images->move('../storage/app/public/upload/', $fileName);
             $item->images = $fileName;
-            $item->save();
             Image::configure(array('driver' => 'gd'));
-            Image::make('../storage/app/public/upload/'.$fileName)->resize(300, 300)->save('../storage/app/public/upload/'.$fileName);
+            Image::make('../storage/app/public/upload/' . $fileName)->resize(300, 300)->save('../storage/app/public/upload/' . $fileName);
+        } else
+        {
+            $item->images = NULL;
         }
+
+        $item->save();
 
         return Helpers::result(true, 'The item is successfully updated', 200);
     }
