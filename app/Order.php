@@ -154,7 +154,7 @@ class Order extends Model {
     {
         foreach ($orderRelations as $orderRelation)
         {
-            $orderRelation->order->update(['status' => 1]);
+            $orderRelation->order->update(['status' => 1, 'expiry_time' => null, 'to_be_deleted_time' => null]);
         }
     }
 }

@@ -21,13 +21,14 @@ class PaymentsController extends Controller {
 
     public function receive(Request $request)
     {
-        if (PaymentServiceOrders::checkIfCheckMacValueCorrect($request) && PaymentServiceOrders::checkIfPaymentPaid($request->RtnCode))
-        {
-            $orderRelations = PaymentServiceOrders::where('MerchantID', $request->MerchantID)->first()->orderRelations;
+//        if (PaymentServiceOrders::checkIfCheckMacValueCorrect($request) && PaymentServiceOrders::checkIfPaymentPaid($request->RtnCode))
+//        {
+            PaymentServiceOrders::where('MerchantTradeNo', $request->MerchantTradeNo)->update(['status' => 1, 'expiry_time' => null]);
+            $orderRelations = PaymentServiceOrders::where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations;
             Order::updateStatus($orderRelations);
 
             return '1|OK';
-        }
+//        }
     }
 
     public function pay(Request $request, ThirdPartyPaymentService $thirdPartyPaymentService)
