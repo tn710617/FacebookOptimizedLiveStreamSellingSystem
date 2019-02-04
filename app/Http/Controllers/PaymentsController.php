@@ -21,14 +21,14 @@ class PaymentsController extends Controller {
 
     public function receive(Request $request)
     {
-//        if (PaymentServiceOrders::checkIfCheckMacValueCorrect($request) && PaymentServiceOrders::checkIfPaymentPaid($request->RtnCode))
-//        {
+        if (PaymentServiceOrders::checkIfCheckMacValueCorrect($request) && PaymentServiceOrders::checkIfPaymentPaid($request->RtnCode))
+        {
             PaymentServiceOrders::where('MerchantTradeNo', $request->MerchantTradeNo)->update(['status' => 1, 'expiry_time' => null]);
             $orderRelations = PaymentServiceOrders::where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations;
             Order::updateStatus($orderRelations);
 
             return '1|OK';
-//        }
+        }
     }
 
     public function pay(Request $request, ThirdPartyPaymentService $thirdPartyPaymentService)
@@ -97,7 +97,7 @@ class PaymentsController extends Controller {
             Log::info(env('ALLPAYCLIENTBACKURL'));
 
             $obj->Send['ReturnURL'] = env('ALLPAYRETURNURL');
-            $obj->Send['ClientBackURL'] = env('ALLPAYCLIENTBACKURL');
+            $obj->Send['ClientBackURL'] = $request->ClintBackURL;
             $obj->Send['MerchantTradeNo'] = $MerchantTradeNo;                                 //訂單編號
             $obj->Send['MerchantTradeDate'] = $MerchantTradeDate;                              //交易時間
             $obj->Send['TotalAmount'] = $totalAmount;                                             //交易金額
