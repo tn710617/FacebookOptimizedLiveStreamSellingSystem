@@ -30,7 +30,7 @@ Route::middleware('tokenValidator')->group(function(){
     Route::post('/streaming-items/{item}', 'LiveStreamController@streamAnItem');
     Route::get('/country-code', 'UsersController@getCountryAndPhoneCode');
     Route::patch('/user-channel-id', 'LiveStreamController@join');
-    Route::get('/streaming-items/{channel}', 'LiveStreamController@show');
+    Route::get('/streaming-items', 'LiveStreamController@show');
     Route::post('/orders/{item}/{recipient}', 'OrdersController@create');
     Route::put('/users-channel-id', 'LiveStreamController@end');
     Route::post('/recipients', 'UsersController@createNewRecipients');

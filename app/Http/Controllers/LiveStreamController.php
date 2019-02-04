@@ -111,7 +111,7 @@ class LiveStreamController extends Controller {
         return Helpers::result(true, 'You\'ve left the channel', 200);
     }
 
-    public function show(Request $request, Channel $channel)
+    public function show(Request $request)
     {
         if(!User::checkIfUserInAChannel($request))
         {
