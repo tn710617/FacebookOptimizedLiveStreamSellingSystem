@@ -237,6 +237,17 @@ class UsersController extends Controller {
 
     public function update(Request $request)
     {
+        $toBeValidatedCondition = [
+            'phone'                => 'required|array',
+            'phone.phone_code'     => 'required|string|max:5',
+            'phone.phone_number'   => 'required|string|min:5|max:20',
+        ];
+        $failMessage = Helpers::validation($toBeValidatedCondition, $request);
+        if ($failMessage)
+        {
+            return Helpers::result(false, $failMessage, 400);
+        }
+
         $user = User::getUser($request);
         if (User::checkIfUserHasAPhone($request))
         {
