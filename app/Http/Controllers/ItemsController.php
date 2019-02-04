@@ -95,7 +95,7 @@ class ItemsController extends Controller {
         {
             $oldFile = '../storage/app/public/upload/' . $item->images;
             if(file_exists($oldFile))
-                unlink($oldFile);
+                @unlink($oldFile);
 
             $images = $request->file('images');
             $fileName = time() . '.' . Helpers::createAUniqueNumber() . '.' . $request->images->getClientOriginalExtension();
@@ -107,7 +107,7 @@ class ItemsController extends Controller {
         {
             $oldFile = '../storage/app/public/upload/' . $item->images;
             if(file_exists($oldFile))
-                unlink($oldFile);
+                @unlink($oldFile);
             $item->images = NULL;
         }
 
