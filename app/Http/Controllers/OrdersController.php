@@ -17,6 +17,15 @@ class OrdersController extends Controller {
 
     public function create(Request $request, Item $item, Recipient $recipient)
     {
+        $toBeValidatedCondition = [
+            'number'   => 'required|integer',
+        ];
+        $failMessage = Helpers::validation($toBeValidatedCondition, $request);
+        if ($failMessage)
+        {
+            return Helpers::result(false, $failMessage, 400);
+        }
+
         if (!User::checkIfUserInAChannel($request))
             return Helpers::result(false, 'You have to be in a channel', 400);
 
