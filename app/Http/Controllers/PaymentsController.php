@@ -40,8 +40,12 @@ class PaymentsController extends Controller {
             return Helpers::result(false, 'The order doesn\'t belong to this user', 400);
 
         $orders = Order::whereIn('id', $request->order_id)->get();
+
         if (Order::checkIfOrderPaid($orders))
             return Helpers::result(false, 'The order has already been paid', 400);
+
+        if (Order::checkIfOrderExpired($orders))
+            return Helpers::result(false, 'The order has expired', 400);
 
         $totalAmount = Order::getTotalAmountForPayments($orders);
         $ordersName = Order::getOrdersNameForPayments($orders);

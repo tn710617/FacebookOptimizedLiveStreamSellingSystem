@@ -172,4 +172,15 @@ class Order extends Model {
         }
     }
 
+    public static function checkIfOrderExpired($orders)
+    {
+        foreach ($orders as $order)
+        {
+            if ($order->effective == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
