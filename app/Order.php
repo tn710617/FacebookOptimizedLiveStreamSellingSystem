@@ -36,7 +36,7 @@ class Order extends Model {
     public static function getAllPlacedOrdersForBuyer(Request $request)
     {
         $orders = Order::getOrders($request);
-        $response = Order::foreachOrders($orders);
+        $response = Order::foreachAndRefineOrders($orders);
 
         return $response;
     }
@@ -51,33 +51,47 @@ class Order extends Model {
         return false;
     }
 
-    public static function foreachOrders($orders)
+    public static function foreachAndRefineOrders($orders)
     {
         foreach ($orders as $order)
         {
+            if (($order->to_be_deleted_time !== null)
+                && (Carbon::now()->gt($order->to_be_deleted_time)))
+            {
+                $order->delete();
+                continue;
+            }
+
+            if (($order->to_be_deleted_time !== null)
+                && (Carbon::now()->gt($order->expiry_time)))
+            {
+                $order->effective = 0;
+                $order->save();
+            }
+
             $response[] = [
-                'order'        => $order->name,
-                'user_id'      => $order->user_id,
-                'name'         => $order->item_name,
-                'description'  => $order->item_description,
-                'unit_price'   => $order->unit_price,
-                'quantity'     => $order->quantity,
-                'total_amount' => $order->total_amount,
-                'channel_id'   => $order->channel_id,
-                'status'       => $order->status,
-                'effective'    => $order->effective,
-                'expiry_time'  => Carbon::parse($order->expiry_time)->toCookieString(),
-                'time'         => $order->created_at->toCookieString(),
-                'images'       => $order->images == null ? null : secure_asset('storage/upload/' . $order->images),
-                'recipient'    => $order->recipient,
-                'phone_code'   => $order->phone_code,
-                'phone_number' => $order->phone_number,
-                'post_code'    => $order->post_code,
-                'country'      => $order->country,
-                'city'         => $order->city,
-                'district'     => $order->district,
-                'others'       => $order->others,
-                'effective'    => $order->effective,
+                'order'              => $order->name,
+                'user_id'            => $order->user_id,
+                'name'               => $order->item_name,
+                'description'        => $order->item_description,
+                'unit_price'         => $order->unit_price,
+                'quantity'           => $order->quantity,
+                'total_amount'       => $order->total_amount,
+                'channel_id'         => $order->channel_id,
+                'status'             => $order->status,
+                'effective'          => $order->effective,
+                'expiry_time'        => Carbon::parse($order->expiry_time)->toCookieString(),
+                'time'               => $order->created_at->toCookieString(),
+                'images'             => $order->images == null ? null : secure_asset('storage/upload/' . $order->images),
+                'recipient'          => $order->recipient,
+                'phone_code'         => $order->phone_code,
+                'phone_number'       => $order->phone_number,
+                'post_code'          => $order->post_code,
+                'country'            => $order->country,
+                'city'               => $order->city,
+                'district'           => $order->district,
+                'others'             => $order->others,
+                'effective'          => $order->effective,
                 'to_be_deleted_time' => Carbon::parse($order->to_be_deleted_time)->toCookieString()
             ];
         }
@@ -157,4 +171,5 @@ class Order extends Model {
             $orderRelation->order->update(['status' => 1, 'expiry_time' => null, 'to_be_deleted_time' => null]);
         }
     }
+
 }

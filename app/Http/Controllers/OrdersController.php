@@ -44,27 +44,27 @@ class OrdersController extends Controller {
         $profit = $total_amount - $total_cost;
         $orderName = time() . Helpers::createAUniqueNumber();
         Order::forceCreate([
-            'name'             => $orderName,
-            'user_id'          => $buyer->id,
-            'item_name'        => $item->name,
-            'item_description' => $item->description,
-            'unit_price'       => $item->unit_price,
-            'cost'             => $item->cost,
-            'total_cost'       => $item->cost * $request->number,
-            'profit'           => $profit,
-            'quantity'         => $request->number,
-            'total_amount'     => $total_amount,
-            'channel_id'       => $buyer->channel_id,
-            'images'           => $item->images,
-            'recipient'        => $recipient->name,
-            'phone_code'       => $recipient->phone->phone_code,
-            'phone_number'     => $recipient->phone->phone_number,
-            'post_code'        => $recipient->postcode,
-            'country'          => DB::table('country')->where('iso', $recipient->country_code)->first()->nicename,
-            'city'             => $recipient->city,
-            'district'         => $recipient->district,
-            'others'           => $recipient->others,
-            'expiry_time' => Carbon::now()->addDays(3)->toDateTimeString(),
+            'name'               => $orderName,
+            'user_id'            => $buyer->id,
+            'item_name'          => $item->name,
+            'item_description'   => $item->description,
+            'unit_price'         => $item->unit_price,
+            'cost'               => $item->cost,
+            'total_cost'         => $item->cost * $request->number,
+            'profit'             => $profit,
+            'quantity'           => $request->number,
+            'total_amount'       => $total_amount,
+            'channel_id'         => $buyer->channel_id,
+            'images'             => $item->images,
+            'recipient'          => $recipient->name,
+            'phone_code'         => $recipient->phone->phone_code,
+            'phone_number'       => $recipient->phone->phone_number,
+            'post_code'          => $recipient->postcode,
+            'country'            => DB::table('country')->where('iso', $recipient->country_code)->first()->nicename,
+            'city'               => $recipient->city,
+            'district'           => $recipient->district,
+            'others'             => $recipient->others,
+            'expiry_time'        => Carbon::now()->addDays(3)->toDateTimeString(),
             'to_be_deleted_time' => Carbon::now()->addDays(6)->toDateTimeString(),
         ]);
 
@@ -77,7 +77,7 @@ class OrdersController extends Controller {
     public function getBuyerOrders(Request $request)
     {
         $orders = User::getUser($request)->order;
-        $response = Order::foreachOrders($orders);
+        $response = Order::foreachAndRefineOrders($orders);
 
         return Helpers::result(true, $response, 200);
     }
@@ -88,7 +88,7 @@ class OrdersController extends Controller {
             return Helpers::result(true, [], 200);
 
         $orders = Order::getOrdersInLatestChannel($request);
-        $response = Order::foreachOrders($orders);
+        $response = Order::foreachAndRefineOrders($orders);
 
         return Helpers::result(true, $response, 200);
     }
@@ -109,7 +109,7 @@ class OrdersController extends Controller {
             return Helpers::result(true, '[]', 200);
 
         $orders = $channel->order;
-        $response = Order::foreachOrders($orders);
+        $response = Order::foreachAndRefineOrders($orders);
 
         return Helpers::result(true, $response, 200);
     }

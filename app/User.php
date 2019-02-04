@@ -130,7 +130,7 @@ class User extends Authenticatable {
     {
         $channels_id = $this->getAllSellerChannelID();
         $orders = Order::whereIn('channel_id', $channels_id)->get();
-        $response = Order::foreachOrders($orders);
+        $response = Order::foreachAndRefineOrders($orders);
         return $response;
     }
 
