@@ -39,7 +39,7 @@ class PaymentsController extends Controller {
         $failMessage = Helpers::validation($toBeValidatedCondition, $request);
         if($failMessage)
             return Helpers::result(false, $failMessage, 400);
-        
+
         if (!Helpers::checkIfIDExists($request, new Order(), 'order_id'))
             return Helpers::result(false, 'The orders doesn\'t exist', 400);
 

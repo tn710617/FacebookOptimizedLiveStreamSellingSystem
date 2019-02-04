@@ -53,10 +53,10 @@ class UsersController extends Controller {
             return Helpers::result(true, 'The token is effective', 200);
         }
 
-        User::updateOrCreate(['FB_id' => $me->getId()],[
-            'id' => 0,
-            'name' => $me->getName(),
-            'email' => $me->getEmail(),
+        User::updateOrCreate(['FB_id' => $me->getId()], [
+            'id'          => 0,
+            'name'        => $me->getName(),
+            'email'       => $me->getEmail(),
             'expiry_time' => $expiry_time
         ]);
 
@@ -81,7 +81,7 @@ class UsersController extends Controller {
         $me = Helpers::getFacebookResources($request->bearerToken(), $endpoint);
         $response = ['name'    => $me->getName(),
                      'email'   => $me->getEmail(),
-                     'avatar'  => 'https://graph.facebook.com/'.User::getUser($request)->FB_id.'/picture?type=large',
+                     'avatar'  => 'https://graph.facebook.com/' . User::getUser($request)->FB_id . '/picture?type=large',
                      'user_id' => User::getUserID($request),
                      'phone'   => 'NULL'
         ];
@@ -89,7 +89,7 @@ class UsersController extends Controller {
         {
             $phone = User::getUser($request)->phone;
             $response = array_replace($response, ['phone' => [
-                'phone_code' => $phone->phone_code,
+                'phone_code'   => $phone->phone_code,
                 'phone_number' => $phone->phone_number
             ]]);
         }
@@ -103,7 +103,7 @@ class UsersController extends Controller {
         $response = [];
         foreach ($datas as $data)
         {
-            $response[] = ['country' => $data->nicename,'country_code' => $data->iso, 'phone_code' => $data->phonecode];
+            $response[] = ['country' => $data->nicename, 'country_code' => $data->iso, 'phone_code' => $data->phonecode];
         }
 
         return Helpers::result(true, $response, 200);
@@ -113,8 +113,10 @@ class UsersController extends Controller {
     {
         $toBeValidatedCondition = [
             'name'                 => 'required|string|max:255',
+            'phone'                => 'required|array',
             'phone.phone_code'     => 'required|string|max:5',
             'phone.phone_number'   => 'required|string|min:5|max:20',
+            'address'              => 'required|array',
             'address.country_code' => 'required|size:2',
             'address.post_code'    => 'required|max:10',
             'address.city'         => 'required|string|max:50',
@@ -163,9 +165,9 @@ class UsersController extends Controller {
         {
             $information = [
                 'recipient_id' => $recipient->id,
-                'name'    => $recipient->name,
-                'phone'   => Phone::find($recipient->phone_id)->only('phone_code', 'phone_number'),
-                'address' =>
+                'name'         => $recipient->name,
+                'phone'        => Phone::find($recipient->phone_id)->only('phone_code', 'phone_number'),
+                'address'      =>
                     [
                         'country_code' => $recipient->country_code,
                         'post_code'    => $recipient->postcode,
@@ -188,8 +190,10 @@ class UsersController extends Controller {
         }
         $toBeValidatedCondition = [
             'name'                 => 'required|string|max:255',
+            'phone'                => 'required|array',
             'phone.phone_code'     => 'required|string|max:5',
             'phone.phone_number'   => 'required|string|min:5|max:20',
+            'address'              => 'required|array',
             'address.country_code' => 'required|size:2',
             'address.post_code'    => 'required|max:10',
             'address.city'         => 'required|string|max:50',
@@ -221,12 +225,13 @@ class UsersController extends Controller {
 
     public function destroyRecipients(Request $request)
     {
-        if(!Helpers::checkIfIDExists($request, new Recipient(), 'recipients'))
+        if (!Helpers::checkIfIDExists($request, new Recipient(), 'recipients'))
             return Helpers::result(false, 'Invalid parameters', 400);
-        if(!Helpers::checkIfBelongToTheUser($request, new Recipient(), 'recipients'))
+        if (!Helpers::checkIfBelongToTheUser($request, new Recipient(), 'recipients'))
             return Helpers::result(false, 'Invalid parameters', 400);
 
         Recipient::destroy($request->recipients);
+
         return Helpers::result(true, 'The recipient has been successfully deleted', 200);
     }
 
@@ -253,6 +258,7 @@ class UsersController extends Controller {
     public function getTaiwanPostCode(Request $request)
     {
         $response = DB::table('zipcode')->select('City', 'Area', 'ZipCode')->get();
+
         return Helpers::result(true, $response, 200);
     }
 }
