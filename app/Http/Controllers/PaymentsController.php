@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use AllInOne;
 use App\Helpers;
+use App\Mail\PaymentReceived;
 use App\Order;
 use App\OrderRelations;
 use App\PaymentServiceOrders;
 use App\ThirdPartyPaymentService;
 use App\User;
 use Carbon\Carbon;
-use CheckMacValue;
 use EncryptType;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use PaymentMethod;
 
 class PaymentsController extends Controller {
@@ -24,9 +25,16 @@ class PaymentsController extends Controller {
     {
         if (PaymentServiceOrders::checkIfCheckMacValueCorrect($request) && PaymentServiceOrders::checkIfPaymentPaid($request->RtnCode))
         {
-            PaymentServiceOrders::where('MerchantTradeNo', $request->MerchantTradeNo)->update(['status' => 1, 'expiry_time' => null]);
-            $orderRelations = PaymentServiceOrders::where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations;
+            $paymentServiceOrder = (new PaymentServiceOrders)->where('MerchantTradeNo', $request->MerchantTradeNo)->first();
+            $paymentServiceOrder->update(['status' => 1, 'expiry_time' => null]);
+
+            $orderRelations = $paymentServiceOrder->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations;
             Order::updateStatus($orderRelations);
+
+            $payerEmail = $paymentServiceOrder->user->email;
+
+            if ($payerEmail !== null)
+            Mail::to($payerEmail)->send(new PaymentReceived($paymentServiceOrder, $orderRelations));
 
             return '1|OK';
         }

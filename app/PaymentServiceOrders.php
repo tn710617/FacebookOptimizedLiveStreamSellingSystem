@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentServiceOrders extends Model
 {
+    protected $fillable = ['status', 'expiry_time'];
+
+    public function user()
+    {
+        return $this->belongsTo('App\User', 'user_id', 'id');
+    }
+
     public function orderRelations()
     {
         return $this->hasMany('App\OrderRelations', 'payment_service_order_id', 'id');
