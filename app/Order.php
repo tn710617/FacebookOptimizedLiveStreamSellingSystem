@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class Order extends Model {
 
     protected $fillable = [
-        'status'
+        'status', 'expiry_time', 'to_be_deleted_time'
     ];
 
     public function channel()
