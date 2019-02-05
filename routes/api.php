@@ -51,3 +51,4 @@ Route::middleware('tokenValidator')->group(function(){
     Route::post('/payments/{thirdPartyPaymentService}', 'PaymentsController@pay');
     Route::get('/payment-services', 'PaymentsController@getPaymentService');
 });
+

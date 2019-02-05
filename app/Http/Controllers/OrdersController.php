@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Channel;
 use App\Helpers;
 use App\Item;
+use App\Mail\OrderCreated;
 use App\Order;
 use App\Recipient;
 use App\StreamingItem;
@@ -12,6 +13,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class OrdersController extends Controller {
 
@@ -51,6 +53,9 @@ class OrdersController extends Controller {
         $order = Order::createOrderAndGetInstance($request, $item, $recipient);
 
         StreamingItem::updateRemainingQuantity($streamingItem, $request->number);
+
+        if ($buyer->email !== null)
+        Mail::to($buyer->email)->send(new OrderCreated($order));
 
         return Helpers::result(true, 'Your order has been successfully placed', 200);
     }
