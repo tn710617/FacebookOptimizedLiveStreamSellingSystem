@@ -8,6 +8,7 @@ use App\Order;
 use App\OrderRelations;
 use App\PaymentServiceOrders;
 use App\ThirdPartyPaymentService;
+use App\User;
 use Carbon\Carbon;
 use CheckMacValue;
 use EncryptType;
@@ -37,7 +38,7 @@ class PaymentsController extends Controller {
             'order_id' => 'required|array',
         ];
         $failMessage = Helpers::validation($toBeValidatedCondition, $request);
-        if($failMessage)
+        if ($failMessage)
             return Helpers::result(false, $failMessage, 400);
 
         if (!Helpers::checkIfIDExists($request, new Order(), 'order_id'))
@@ -66,6 +67,7 @@ class PaymentsController extends Controller {
         {
             $payment_service_order = new PaymentServiceOrders();
 
+            $payment_service_order->user_id = User::getUserID($request);
             $payment_service_order->payment_service_id = $thirdPartyPaymentService->id;
             $payment_service_order->expiry_time = (new Carbon())->now()->addDay(1)->toDateTimeString();
             $payment_service_order->MerchantID = env('MERCHANTID');
@@ -87,6 +89,7 @@ class PaymentsController extends Controller {
         } catch (Exception $e)
         {
             DB::rollBack();
+
             return Helpers::result('false', 'Something went wrong with DB', 400);
         }
         DB::commit();
