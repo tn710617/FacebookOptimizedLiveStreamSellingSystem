@@ -48,35 +48,7 @@ class OrdersController extends Controller {
         if ((!StreamingItem::checkIfItemOnStream($streamingItem, $item)))
             return Helpers::result(false, 'The item is not currently on the stream', 400);
 
-        $total_cost = $item->cost * $request->number;
-        $total_amount = $item->unit_price * $request->number;
-        $profit = $total_amount - $total_cost;
-        $orderName = time() . Helpers::createAUniqueNumber();
-        Order::forceCreate([
-            'name'               => $orderName,
-            'user_id'            => $buyer->id,
-            'item_name'          => $item->name,
-            'item_description'   => $item->description,
-            'unit_price'         => $item->unit_price,
-            'cost'               => $item->cost,
-            'total_cost'         => $item->cost * $request->number,
-            'profit'             => $profit,
-            'quantity'           => $request->number,
-            'total_amount'       => $total_amount,
-            'channel_id'         => $buyer->channel_id,
-            'images'             => $item->images,
-            'recipient'          => $recipient->name,
-            'phone_code'         => $recipient->phone->phone_code,
-            'phone_number'       => $recipient->phone->phone_number,
-            'post_code'          => $recipient->postcode,
-            'country'            => DB::table('country')->where('iso', $recipient->country_code)->first()->nicename,
-            'city'               => $recipient->city,
-            'district'           => $recipient->district,
-            'others'             => $recipient->others,
-            'expiry_time'        => Carbon::now()->addDays(3)->toDateTimeString(),
-            'to_be_deleted_time' => Carbon::now()->addDays(6)->toDateTimeString(),
-        ]);
-
+        $order = Order::createOrderAndGetInstance($request, $item, $recipient);
 
         StreamingItem::updateRemainingQuantity($streamingItem, $request->number);
 

@@ -183,4 +183,40 @@ class Order extends Model {
         }
         return false;
     }
+
+    public static function createOrderAndGetInstance(Request $request, Item $item, Recipient $recipient)
+    {
+        $total_cost = $item->cost * $request->number;
+        $total_amount = $item->unit_price * $request->number;
+        $profit = $total_amount - $total_cost;
+        $orderName = time() . Helpers::createAUniqueNumber();
+        $buyer = User::getUser($request);
+
+        $order = new Order();
+        $order->name = $orderName;
+        $order->user_id = $buyer->id;
+        $order->item_name = $item->name;
+        $order->item_description = $item->description;
+        $order->unit_price = $item->unit_price;
+        $order->cost = $item->cost;
+        $order->total_cost = $item->cost * $request->number;
+        $order->profit = $profit;
+        $order->quantity = $request->number;
+        $order->total_amount = $total_amount;
+        $order->channel_id = $buyer->channel_id;
+        $order->images = $item->images;
+        $order->recipient = $recipient->name;
+        $order->phone_code = $recipient->phone->phone_code;
+        $order->phone_number = $recipient->phone->phone_number;
+        $order->post_code = $recipient->postcode;
+        $order->country = DB::table('country')->where('iso', $recipient->country_code)->first()->nicename;
+        $order->city = $recipient->city;
+        $order->district = $recipient->district;
+        $order->others = $recipient->others;
+        $order->expiry_time = Carbon::now()->addDays(env('DAYSOFORDERTOBEEXPIRED'))->toDateTimeString();
+        $order->to_be_deleted_time = Carbon::now()->addDays(env('DAYSOFORDERTOBEDELETED'))->toDateTimeString();
+        $order->save();
+
+        return $order;
+    }
 }
