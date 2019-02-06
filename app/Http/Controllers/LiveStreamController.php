@@ -128,7 +128,7 @@ class LiveStreamController extends Controller {
             'name' => $streaming_items->item->name,
             'description' => $streaming_items->item->description,
             'unit_price' => $streaming_items->item->unit_price,
-            'image' => $streaming_items->item->images,
+            'image' => $streaming_items->item->images == null ? null : secure_asset('storage/upload/'.$streaming_items->item->images),
             'remaining_quantity' => $streaming_items->remaining_quantity,
             'sold_quantity' => $streaming_items->sold_quantity
         ], 200);
