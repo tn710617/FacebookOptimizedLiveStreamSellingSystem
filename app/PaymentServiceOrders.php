@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use CheckMacValue;
 use EncryptType;
 use Illuminate\Database\Eloquent\Model;
@@ -35,5 +36,17 @@ class PaymentServiceOrders extends Model
         if($receivedCheckMacValue == $calculatedCheckMacValue)
             return true;
         return false;
+    }
+
+    public static function deleteExpiredOrders()
+    {
+        $toBeDeletedPaymentServiceOrders = (new PaymentServiceOrders)->where('expiry_time', '<', Carbon::now());
+        foreach ($toBeDeletedPaymentServiceOrders->get() as $toBeDeletedPaymentServiceOrder)
+        {
+            $orderRelations = $toBeDeletedPaymentServiceOrder->orderRelations;
+            foreach ($orderRelations as $orderRelation)
+                $orderRelation->delete();
+        }
+        $toBeDeletedPaymentServiceOrders->delete();
     }
 }

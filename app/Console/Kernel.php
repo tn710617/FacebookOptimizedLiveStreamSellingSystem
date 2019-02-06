@@ -2,6 +2,10 @@
 
 namespace App\Console;
 
+use App\Order;
+use App\PaymentServiceOrders;
+use App\Token;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -24,8 +28,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->call(function () {
+            Token::where('expiry_time', '<', time())->delete();
+            PaymentServiceOrders::deleteExpiredOrders();
+            Order::where('expiry_time', '<', Carbon::now())->delete();
+        })->everyMinute();
     }
 
     /**
