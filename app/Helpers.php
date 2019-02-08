@@ -18,7 +18,7 @@ class Helpers {
         return Response::json(['result' => $result, 'response' => $response], $statusCode);
     }
 
-    public static function getFacebookResources($token, $endpoint)
+    public static function getFacebookResources($token)
     {
         $fb = new \Facebook\Facebook([
             'app_id'                => env('FACEBOOK_API_APP_ID'),
@@ -33,6 +33,7 @@ class Helpers {
 //   $helper = $fb->getCanvasHelper();
 //   $helper = $fb->getPageTabHelper();
 
+        $endpoint = 'me?fields='.env('InformationFromFacebook').'';
         try
         {
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
@@ -146,4 +147,5 @@ class Helpers {
 
         return true;
     }
+
 }

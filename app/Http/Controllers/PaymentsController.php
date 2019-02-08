@@ -9,6 +9,7 @@ use App\Order;
 use App\OrderRelations;
 use App\PaymentServiceOrders;
 use App\ThirdPartyPaymentService;
+use App\Token;
 use App\User;
 use Carbon\Carbon;
 use EncryptType;
@@ -31,7 +32,8 @@ class PaymentsController extends Controller {
             $orderRelations = $paymentServiceOrder->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations;
             Order::updateStatus($orderRelations);
 
-            $payerEmail = $paymentServiceOrder->user->email;
+            $user_id = $paymentServiceOrder->user->id;
+            $payerEmail = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
 
             if ($payerEmail !== null)
             Mail::to($payerEmail)->send(new PaymentReceived($paymentServiceOrder, $orderRelations));

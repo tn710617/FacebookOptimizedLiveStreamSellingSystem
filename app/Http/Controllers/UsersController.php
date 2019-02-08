@@ -36,8 +36,7 @@ class UsersController extends Controller {
             return Helpers::result(false, 'The token is invalid', 401);
         }
 
-        $endpoint = 'me?fields=id,name,email,picture';
-        $me = Helpers::getFacebookResources($request->bearerToken(), $endpoint);
+        $me = Helpers::getFacebookResources($request->bearerToken());
 
         $expiry_time = Helpers::getExpiryTime($request);
 
@@ -77,8 +76,7 @@ class UsersController extends Controller {
 
     public function get(Request $request)
     {
-        $endpoint = 'me?fields=id,name,email,picture';
-        $me = Helpers::getFacebookResources($request->bearerToken(), $endpoint);
+        $me = Helpers::getFacebookResources($request->bearerToken());
         $response = ['name'    => $me->getName(),
                      'email'   => $me->getEmail(),
                      'avatar'  => 'https://graph.facebook.com/' . User::getUser($request)->FB_id . '/picture?type=large',

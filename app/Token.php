@@ -27,8 +27,7 @@ class Token extends Model
 
     public static function checkIfTokenValid(Request $request)
     {
-        $endpoint = 'me?fields=id,name,email,picture';
-        $me = Helpers::getFacebookResources($request->bearerToken(), $endpoint);
+        $me = Helpers::getFacebookResources($request->bearerToken());
         if($me)
         {
             return true;
@@ -39,5 +38,10 @@ class Token extends Model
     public static function checkIfUserExists($FacebookResources)
     {
         return User::where('FB_id', $FacebookResources->getId())->count();
+    }
+
+    public static function getLatestToken($user_id)
+    {
+        return Token::where('user_id', $user_id)->latest()->first()->name;
     }
 }
