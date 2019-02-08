@@ -138,4 +138,30 @@ class User extends Authenticatable {
     {
         return $this->channel->pluck('id');
     }
+
+    public static function updateEmails()
+    {
+        // Daily synchronize user's email locally and remotely if token exists
+        // When inconsistency occurs, choose FB's data.
+        $users = User::all();
+        foreach($users as $user)
+        {
+            // If token doesn't exist locally, continue
+            if(Token::where('user_id', $user->id)->count() == 0)
+                continue;
+
+            $token = Token::getLatestToken($user->id);
+
+            if(Token::checkIfTokenExpired($token))
+                continue;
+
+            $FB_email = Helpers::getFacebookResources($token)->getEmail();
+
+            $Local_email = $user->email;
+            if($FB_email !== $Local_email)
+            {
+                $user->update(['email' => $FB_email]);
+            }
+        }
+    }
 }

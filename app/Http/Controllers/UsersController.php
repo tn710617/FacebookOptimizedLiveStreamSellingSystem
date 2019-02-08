@@ -21,7 +21,7 @@ class UsersController extends Controller {
 
         if (Token::checkIfTokenExists($request))
         {
-            if (Token::checkIfTokenExpired($request))
+            if (Token::checkIfTokenExpired($request->bearerToken()))
             {
                 Token::where('name', $request->bearerToken())->delete();
 

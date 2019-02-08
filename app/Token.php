@@ -14,9 +14,9 @@ class Token extends Model
         return Token::where('name', $receivedToken)->count();
     }
 
-    public static function checkIfTokenExpired(Request $request)
+    public static function checkIfTokenExpired($token)
     {
-        return ((Token::where('name', $request->bearerToken())->first()->expiry_time) < time());
+        return ((Token::where('name', $token)->first()->expiry_time) < time());
     }
 
     public static function checkIfTokenReceived(Request $request)

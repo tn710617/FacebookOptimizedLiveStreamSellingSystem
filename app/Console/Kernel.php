@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Order;
 use App\PaymentServiceOrders;
 use App\Token;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -32,6 +33,7 @@ class Kernel extends ConsoleKernel
             Token::where('expiry_time', '<', time())->delete();
             PaymentServiceOrders::deleteExpiredOrders();
             Order::where('expiry_time', '<', Carbon::now())->delete();
+            User::updateEmails();
         })->daily();
     }
 
