@@ -33,7 +33,7 @@ class Helpers {
 //   $helper = $fb->getCanvasHelper();
 //   $helper = $fb->getPageTabHelper();
 
-        $endpoint = 'me?fields='.env('InformationFromFacebook').'';
+        $endpoint = env('FBEndpoint');
         try
         {
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
@@ -42,8 +42,6 @@ class Helpers {
         } catch (\Facebook\Exceptions\FacebookResponseException $e)
         {
             return false;
-//            Helpers::result(false, 'The token is invalid', 401);
-            // When Graph returns an error
 //            echo 'Graph returned an error: ' . $e->getMessage();
 //            exit;
         } catch (\Facebook\Exceptions\FacebookSDKException $e)
