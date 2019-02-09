@@ -253,12 +253,14 @@ class UsersController extends Controller {
                 'phone_code'   => $request->phone['phone_code'],
                 'phone_number' => $request->phone['phone_number']
             ]);
+            return Helpers::result(true, 'User\'s information has been successfully updated', 200);
         }
+        
         $phone = new Phone();
-        $phone->forceCreate([
-            'phone_code'   => $request->phone['phone_code'],
-            'phone_number' => $request->phone['phone_number']
-        ]);
+        $phone->phone_code = $request->phone['phone_code'];
+        $phone->phone_number = $request->phone['phone_number'];
+        $phone->save();
+
         $user->update(['phone_id' => $phone->id]);
 
         return Helpers::result(true, 'User\'s information has been successfully updated', 200);
