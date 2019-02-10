@@ -21,17 +21,15 @@ class UsersController extends Controller {
 
         if (Token::checkIfTokenExists($request))
         {
-            if (Token::checkIfTokenExpired($request->bearerToken()))
+            if (!Token::checkIfTokenValid($request->bearerToken()))
             {
                 Token::where('name', $request->bearerToken())->delete();
-
-                return Helpers::result(false, 'The token has expired', 401);
+                return Helpers::result(false, 'The token is invalid', 401);
             }
-
             return Helpers::result(true, 'The token is effective', 200);
         }
 
-        if (!Token::checkIfTokenValid($request))
+        if (!Token::checkIfTokenValid($request->bearerToken()))
         {
             return Helpers::result(false, 'The token is invalid', 401);
         }

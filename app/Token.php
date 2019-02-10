@@ -25,9 +25,9 @@ class Token extends Model
         return isset($token);
     }
 
-    public static function checkIfTokenValid(Request $request)
+    public static function checkIfTokenValid($token)
     {
-        $me = Helpers::getFacebookResources($request->bearerToken());
+        $me = Helpers::getFacebookResources($token);
         if($me)
         {
             return true;
@@ -43,5 +43,17 @@ class Token extends Model
     public static function getLatestToken($user_id)
     {
         return Token::where('user_id', $user_id)->latest()->first()->name;
+    }
+
+    public static function deleteInvalidToken()
+    {
+        $tokens = (new self)->all();
+        foreach ($tokens as $token)
+        {
+            if (!Token::checkIfTokenValid($token->name))
+            {
+                $token->delete();
+            }
+        }
     }
 }
