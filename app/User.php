@@ -154,6 +154,7 @@ class User extends Authenticatable {
 
             if(Token::checkIfTokenExpired($token))
                 continue;
+            var_dump($user->name);
 
             $FB_email = Helpers::getFacebookResources($token)->getEmail();
 

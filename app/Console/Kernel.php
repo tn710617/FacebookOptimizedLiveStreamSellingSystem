@@ -33,8 +33,9 @@ class Kernel extends ConsoleKernel
             Token::where('expiry_time', '<', time())->delete();
             PaymentServiceOrders::deleteExpiredOrders();
             Order::where('expiry_time', '<', Carbon::now())->delete();
+            Token::deleteInvalidToken();
             User::updateEmails();
-        })->daily();
+        })->everyMinute();
     }
 
     /**

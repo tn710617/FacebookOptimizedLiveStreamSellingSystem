@@ -19,9 +19,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/token', 'UsersController@refreshOrCreate');
 Route::post('/paymentsResponse', 'PaymentsController@receive');
+Route::post('/test', 'TestController@test');
 
 Route::middleware('tokenValidator')->group(function(){
-    Route::post('/test', 'TestController@test');
     Route::get('/users', 'UsersController@get');
     Route::post('/items', 'ItemsController@create');
     Route::post('/channel', 'LiveStreamController@start');

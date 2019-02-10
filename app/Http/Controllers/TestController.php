@@ -19,18 +19,8 @@ class TestController extends Controller {
 
     public function test(Request $request)
     {
-        $users = User::all();
-        foreach ($users as $user)
-        {
-            if($user->email !== null)
-            {
-                $order = Order::where('id', 4)->first();
-                Mail::to($user->email)
-                    ->send(new OrderCreated($order));
-            }
-            continue;
-        }
-
+        Token::deleteInvalidToken();
+        return '123';
 //        return (new OrderCreated($order))->render();
     }
 }
