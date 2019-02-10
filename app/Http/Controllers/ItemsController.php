@@ -103,7 +103,8 @@ class ItemsController extends Controller {
             $item->images = $fileName;
             Image::configure(array('driver' => 'gd'));
             Image::make('../storage/app/public/upload/' . $fileName)->resize(300, 300)->save('../storage/app/public/upload/' . $fileName);
-        } else
+        }
+        if ($request->imageDelete == true)
         {
             $oldFile = '../storage/app/public/upload/' . $item->images;
             if(file_exists($oldFile))
