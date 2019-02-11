@@ -155,7 +155,7 @@ class UsersController extends Controller {
     {
         if (Recipient::countRecipientQuantity($request) == 0)
         {
-            return Helpers::result(false, 'This user hasn\'t had any recipient\'s information yet', 400);
+            return Helpers::result(false, [],200);
         }
         $recipients = Recipient::where('user_id', User::getUserID($request))->get();
         $response = [];
