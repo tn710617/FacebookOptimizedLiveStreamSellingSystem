@@ -14,6 +14,11 @@ class User extends Authenticatable {
         return $this->hasMany('App\Channel', 'user_id', 'id');
     }
 
+    public function inChannel()
+    {
+        return $this->hasone('App\Channel', 'id', 'channel_id');
+    }
+
     public function order()
     {
         return $this->hasMany('App\Order', 'user_id', 'id');

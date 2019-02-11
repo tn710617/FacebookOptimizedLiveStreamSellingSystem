@@ -21,6 +21,7 @@ Route::post('/token', 'UsersController@refreshOrCreate');
 Route::post('/paymentsResponse', 'PaymentsController@receive');
 
 Route::middleware('tokenValidator')->group(function(){
+    Route::get('/user-status', 'UsersController@getUserStatus');
     Route::post('/test', 'TestController@test');
     Route::get('/users', 'UsersController@get');
     Route::post('/items', 'ItemsController@create');

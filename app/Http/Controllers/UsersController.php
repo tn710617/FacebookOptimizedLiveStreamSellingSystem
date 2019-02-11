@@ -24,8 +24,10 @@ class UsersController extends Controller {
             if (!Token::checkIfTokenValid($request->bearerToken()))
             {
                 Token::where('name', $request->bearerToken())->delete();
+
                 return Helpers::result(false, 'The token is invalid', 401);
             }
+
             return Helpers::result(true, 'The token is effective', 200);
         }
 
@@ -234,9 +236,9 @@ class UsersController extends Controller {
     public function update(Request $request)
     {
         $toBeValidatedCondition = [
-            'phone'                => 'required|array',
-            'phone.phone_code'     => 'required|string|max:5',
-            'phone.phone_number'   => 'required|string|min:5|max:20',
+            'phone'              => 'required|array',
+            'phone.phone_code'   => 'required|string|max:5',
+            'phone.phone_number' => 'required|string|min:5|max:20',
         ];
         $failMessage = Helpers::validation($toBeValidatedCondition, $request);
         if ($failMessage)
@@ -251,9 +253,10 @@ class UsersController extends Controller {
                 'phone_code'   => $request->phone['phone_code'],
                 'phone_number' => $request->phone['phone_number']
             ]);
+
             return Helpers::result(true, 'User\'s information has been successfully updated', 200);
         }
-        
+
         $phone = new Phone();
         $phone->phone_code = $request->phone['phone_code'];
         $phone->phone_number = $request->phone['phone_number'];
@@ -269,5 +272,22 @@ class UsersController extends Controller {
         $response = DB::table('zipcode')->select('City', 'Area', 'ZipCode')->get();
 
         return Helpers::result(true, $response, 200);
+    }
+
+    public function getUserStatus(Request $request)
+    {
+        $user = User::getUser($request);
+        if ($user->channel_id !== 0)
+        {
+            $user_info = $user->only(['host']);
+            $channel_info = $user->inChannel->only('name', 'iFrame');
+            $response = array_merge($user_info, $channel_info);
+            $response['channel_token'] = $response['name'];
+            unset($response['name']);
+
+            return Helpers::result(true, $response, 200);
+        }
+
+        return Helpers::result(false, 'The user is not in a channel', 200);
     }
 }
