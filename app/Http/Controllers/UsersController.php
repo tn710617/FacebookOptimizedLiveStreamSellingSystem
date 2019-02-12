@@ -280,7 +280,7 @@ class UsersController extends Controller {
         if ($user->channel_id !== 0)
         {
             $user_info = $user->only(['host']);
-            $channel_info = $user->inChannel->only('name', 'iFrame');
+            $channel_info = $user->inChannel->only('name', 'iFrame', 'channel_description');
             $response = array_merge($user_info, $channel_info);
             $response['channel_token'] = $response['name'];
             unset($response['name']);
