@@ -3,7 +3,7 @@
 namespace App\Console;
 
 use App\Order;
-use App\PaymentServiceOrders;
+use App\AllPay;
 use App\Token;
 use App\User;
 use Carbon\Carbon;
@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(function () {
             Token::where('expiry_time', '<', time())->delete();
-            PaymentServiceOrders::deleteExpiredOrders();
+            AllPay::deleteExpiredOrders();
             Order::where('expiry_time', '<', Carbon::now())->delete();
             Token::deleteInvalidToken();
             User::updateEmails();

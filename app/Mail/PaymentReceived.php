@@ -22,7 +22,6 @@ class PaymentReceived extends Mailable
     public function __construct($paymentServiceOrder, $orderRelations)
     {
         $this->paymentServiceOrder = $paymentServiceOrder;
-//        $this->orders = $orders;
         $this->orderRelations = $orderRelations;
     }
 
@@ -37,7 +36,7 @@ class PaymentReceived extends Mailable
             ->with([
                 'buyer' => $this->paymentServiceOrder->user->name,
                 'orderRelations' => $this->orderRelations,
-                'total_amount' => $this->paymentServiceOrder->TotalAmount,
+                'total_amount' => $this->paymentServiceOrder->total_amount,
             ]);
     }
 }

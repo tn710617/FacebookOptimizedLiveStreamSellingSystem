@@ -18,9 +18,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/token', 'UsersController@refreshOrCreate');
-Route::post('/paymentsResponse', 'PaymentsController@receive');
+Route::post('/allpaylistener', 'PaymentsController@listenAllPay');
+Route::post('/paypallistener', 'PaymentsController@listenPayPal');
 
 Route::middleware('tokenValidator')->group(function(){
+    Route::post('/payments/{thirdPartyPaymentService}', 'PaymentsController@pay');
+    Route::post('/test', 'TestController@test');
     Route::get('/user-status', 'UsersController@getUserStatus');
     Route::post('/test', 'TestController@test');
     Route::get('/users', 'UsersController@get');
@@ -49,7 +52,6 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/sold-items', 'OrdersController@getSoldItems');
     Route::get('/sold-items/{channel}', 'OrdersController@getSoldItemsPerChannel');
     Route::get('/taiwan-post-code', 'UsersController@getTaiwanPostCode');
-    Route::post('/payments/{thirdPartyPaymentService}', 'PaymentsController@pay');
     Route::get('/payment-services', 'PaymentsController@getPaymentService');
 });
 

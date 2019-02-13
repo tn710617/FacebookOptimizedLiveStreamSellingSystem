@@ -17,7 +17,8 @@
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "^2.4",
         "laravel/framework": "5.7.*",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "paypal/rest-api-sdk-php": "^1.14"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",
@@ -52,7 +53,8 @@
         },
         "files": [
             "app/Helpers.php",
-            "app/AllPay.Payment.Integration.php"
+            "app/AllPay.Payment.Integration.php",
+            "app/PaypalIPN.php"
         ]
     },
     "minimum-stability": "dev",

@@ -5,12 +5,15 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<form action="/payments/1" method="POST">
+<form action="/api/payments/2" method="POST">
     @csrf()
-                <input type="checkbox" value="1" name="order_id[]">
-    <input type="checkbox" value="2" name="order_id[]">
-    <input type="checkbox" value="3" name="order_id[]">
-    <input type="hidden" value="https://64b30ea0.ngrok.io/" name="ClintBackURL">
+    <input type="hidden" name="cmd" value="_xclick"/>
+    <label for="order_id">order_IDs</label><br>
+    <input type="text" value="" name="order_id[]"><br>
+    <input type="text" value="" name="order_id[]"><br>
+    <input type="text" value="" name="order_id[]"><br>
+    <label for="ClientBackURL">ClientBackURL</label><br>
+    <input type="text" value="" name="ClintBackURL"><br>
     <button type="submit">Submit</button>
 </form>
 </body>
