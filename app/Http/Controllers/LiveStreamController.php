@@ -155,6 +155,7 @@ class LiveStreamController extends Controller {
         foreach ($channels as $channel)
         {
             $response[] = [
+                'channel_id' => $channel->id,
                 'user_id' => $channel->user_id,
                 'channel_token' => $channel->name,
                 'iFrame' => $channel->iFrame,
