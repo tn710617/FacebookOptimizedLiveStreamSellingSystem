@@ -93,7 +93,7 @@ class OrdersController extends Controller {
         if ($channel->user_id !== User::getUserID($request))
             return Helpers::result(false, 'Invalid parameters', 400);
         if ($channel->order->count() == 0)
-            return Helpers::result(true, '[]', 200);
+            return Helpers::result(true, [], 200);
 
         $orders = $channel->order;
         $response = Order::foreachAndRefineOrders($orders);
