@@ -75,6 +75,7 @@ class Order extends Model {
             }
 
             $response[] = [
+                'id'                 => $order->id,
                 'order'              => $order->name,
                 'user_id'            => $order->user_id,
                 'name'               => $order->item_name,
@@ -186,6 +187,7 @@ class Order extends Model {
                 return true;
             }
         }
+
         return false;
     }
 
