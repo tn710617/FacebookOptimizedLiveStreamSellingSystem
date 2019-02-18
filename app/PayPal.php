@@ -100,6 +100,11 @@ class PayPal extends Model {
         $queryString = http_build_query($data);
 
         // Redirect to paypal IPN
+        if($request->source == 'mobile')
+        {
+            $url = $paypalUrl . '?' . $queryString;
+            return $url;
+        }
         header('location:' . $paypalUrl . '?' . $queryString);
         exit();
     }

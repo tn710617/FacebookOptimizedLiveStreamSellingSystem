@@ -79,9 +79,8 @@ class PaymentsController extends Controller {
                 if($error)
                     return Helpers::result(false, $error, 400);
 
-                $error = (new PayPal)->send($toBeSavedInfo, $request);
-                if($error)
-                    return Helpers::result(false, $error, 400);
+                $url = (new PayPal)->send($toBeSavedInfo, $request);
+                return Helpers::result(true, $url, 200);
                 break;
         }
 
