@@ -135,8 +135,12 @@ class User extends Authenticatable {
     {
         $channels_id = $this->getAllSellerChannelID();
         $orders = Order::whereIn('channel_id', $channels_id)->get();
-        $response = Order::foreachAndRefineOrders($orders);
-        return $response;
+        if($orders->count() !== 0)
+        {
+            $response = Order::foreachAndRefineOrders($orders);
+            return $response;
+        }
+        return [];
     }
 
     public function getAllSellerChannelID()
