@@ -96,6 +96,10 @@ class PayPal extends Model {
         // Add any custom fields for the query string.
         $data['custom'] = $toBeSavedInfo['merchant_trade_no'];
 
+        // Add cmd
+
+        $data['cmd'] = "_xclick";
+
         // Build the query string from the data.
         $queryString = http_build_query($data);
 
