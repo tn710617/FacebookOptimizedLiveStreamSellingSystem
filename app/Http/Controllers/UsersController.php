@@ -239,6 +239,7 @@ class UsersController extends Controller {
             'phone'              => 'required|array',
             'phone.phone_code'   => 'required|string|max:5',
             'phone.phone_number' => 'required|string|min:5|max:20',
+            'email'              => 'email',
         ];
         $failMessage = Helpers::validation($toBeValidatedCondition, $request);
         if ($failMessage)
@@ -253,6 +254,8 @@ class UsersController extends Controller {
                 'phone_code'   => $request->phone['phone_code'],
                 'phone_number' => $request->phone['phone_number']
             ]);
+            if(isset($request->email))
+            $user->update(['email' => $request->email]);
 
             return Helpers::result(true, 'User\'s information has been successfully updated', 200);
         }
@@ -262,7 +265,7 @@ class UsersController extends Controller {
         $phone->phone_number = $request->phone['phone_number'];
         $phone->save();
 
-        $user->update(['phone_id' => $phone->id]);
+        $user->update(['phone_id' => $phone->id, 'email' => $request->email]);
 
         return Helpers::result(true, 'User\'s information has been successfully updated', 200);
     }
