@@ -198,10 +198,14 @@ class PayPal extends Model {
 
                     $user_id = $PayPal->user->id;
 
-                    $payerEmail = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
+                    $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
+                    $Local_email = User::where('id', $user_id)->first()->email;
 
-                    if ($payerEmail !== null)
-                        Mail::to($payerEmail)->send(new PaymentReceived($PayPal, $orderRelations));
+                    if ($FB_email !== null)
+                        Mail::to($FB_email)->send(new PaymentReceived($PayPal, $orderRelations));
+
+                    elseif ($Local_email !== null)
+                        Mail::to($Local_email)->send(new PaymentReceived($PayPal, $orderRelations));
                 }
             }
         } elseif ($enable_sandbox)
