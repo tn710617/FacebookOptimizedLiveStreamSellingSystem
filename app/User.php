@@ -167,7 +167,7 @@ class User extends Authenticatable {
             $FB_email = Helpers::getFacebookResources($token)->getEmail();
 
             $Local_email = $user->email;
-            if($FB_email !== $Local_email)
+            if(($FB_email !== $Local_email) && ($FB_email !== null))
             {
                 $user->update(['email' => $FB_email]);
             }
