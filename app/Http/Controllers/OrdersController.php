@@ -54,9 +54,15 @@ class OrdersController extends Controller {
 
         StreamingItem::updateRemainingQuantity($streamingItem, $request->number);
 
-        $email = Helpers::getFacebookResources($request->bearerToken())->getEmail();
-        if ($email !== null)
-        Mail::to($email)->send(new OrderCreated($order));
+        $FB_email = Helpers::getFacebookResources($request->bearerToken())->getEmail();
+        $Local_email = $buyer->email;
+
+        if ($FB_email!== null)
+        Mail::to($FB_email)->send(new OrderCreated($order));
+
+        elseif ($Local_email !== null)
+        Mail::to($Local_email)->send(new OrderCreated($order));
+
 
         return Helpers::result(true, 'Your order has been successfully placed', 200);
     }
