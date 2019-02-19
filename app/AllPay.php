@@ -152,17 +152,21 @@ class AllPay extends Model {
     {
         if (AllPay::checkIfCheckMacValueCorrect($request) && AllPay::checkIfPaymentPaid($request->RtnCode))
         {
-            $paymentServiceOrder = (new AllPay)->where('MerchantTradeNo', $request->MerchantTradeNo)->first();
-            $paymentServiceOrder->update(['status' => 1, 'expiry_time' => null]);
+            $AllPayPaymentOrders = (new AllPay)->where('MerchantTradeNo', $request->MerchantTradeNo)->first();
+            $AllPayPaymentOrders->update(['status' => 1, 'expiry_time' => null]);
 
-            $orderRelations = $paymentServiceOrder->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations->where('payment_service_id', 1);
+            $orderRelations = $AllPayPaymentOrders->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations->where('payment_service_id', 1);
             Order::updateStatus($orderRelations);
 
-            $user_id = $paymentServiceOrder->user->id;
-            $payerEmail = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
+            $user_id = $AllPayPaymentOrders->user->id;
+            $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
+            $Local_email = User::where('id', $user_id)->first()->email;
 
-            if ($payerEmail !== null)
-                Mail::to($payerEmail)->send(new PaymentReceived($paymentServiceOrder, $orderRelations));
+            if ($FB_email !== null)
+                Mail::to($FB_email)->send(new PaymentReceived($AllPayPaymentOrders , $orderRelations));
+
+            elseif ($Local_email !== null)
+                Mail::to($Local_email)->send(new PaymentReceived($AllPayPaymentOrders , $orderRelations));
 
             return true;
         }
