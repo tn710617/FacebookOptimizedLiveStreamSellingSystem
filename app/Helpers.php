@@ -146,4 +146,19 @@ class Helpers {
         return true;
     }
 
+    public static function deleteExpiredPaymentOrders(Array $array)
+    {
+        foreach ($array as $model)
+        {
+            $toBeDeletedPaymentServiceOrders = $model->where('expiry_time', '<', Carbon::now());
+            foreach ($toBeDeletedPaymentServiceOrders->get() as $toBeDeletedPaymentServiceOrder)
+            {
+                $orderRelations = $toBeDeletedPaymentServiceOrder->orderRelations;
+                foreach ($orderRelations as $orderRelation)
+                    $orderRelation->delete();
+            }
+            $toBeDeletedPaymentServiceOrders->delete();
+        }
+    }
+
 }

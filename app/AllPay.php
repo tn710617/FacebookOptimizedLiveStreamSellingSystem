@@ -148,18 +148,6 @@ class AllPay extends Model {
         return false;
     }
 
-    public static function deleteExpiredOrders()
-    {
-        $toBeDeletedPaymentServiceOrders = (new AllPay)->where('expiry_time', '<', Carbon::now());
-        foreach ($toBeDeletedPaymentServiceOrders->get() as $toBeDeletedPaymentServiceOrder)
-        {
-            $orderRelations = $toBeDeletedPaymentServiceOrder->orderRelations;
-            foreach ($orderRelations as $orderRelation)
-                $orderRelation->delete();
-        }
-        $toBeDeletedPaymentServiceOrders->delete();
-    }
-
     public function listen(Request $request)
     {
         if (AllPay::checkIfCheckMacValueCorrect($request) && AllPay::checkIfPaymentPaid($request->RtnCode))
