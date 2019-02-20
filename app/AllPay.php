@@ -46,7 +46,7 @@ class AllPay extends Model {
             //基本參數(請依系統規劃自行調整)
 
 
-            $obj->Send['ReturnURL'] = env('ALLPAYRETURNURL');
+            $obj->Send['ReturnURL'] = env('ALLPAY_RETURN_URL');
             $obj->Send['ClientBackURL'] = $request->ClintBackURL;
             $obj->Send['MerchantTradeNo'] = $toBeSavedInfo['merchant_trade_no'];                                 //訂單編號
             $obj->Send['MerchantTradeDate'] = $toBeSavedInfo['merchant_trade_date'];                              //交易時間
