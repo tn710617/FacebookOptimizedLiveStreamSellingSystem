@@ -88,7 +88,7 @@ class Order extends Model {
                 'effective'          => $order->effective,
                 'expiry_time'        => Carbon::parse($order->expiry_time)->toCookieString(),
                 'time'               => $order->created_at->toCookieString(),
-                'images'             => $order->images == null ? null : secure_asset('storage/upload/' . $order->images),
+                'images'             => $order->images == null ? null : Item::getImageURL($order->images),
                 'recipient'          => $order->recipient,
                 'phone_code'         => $order->phone_code,
                 'phone_number'       => $order->phone_number,

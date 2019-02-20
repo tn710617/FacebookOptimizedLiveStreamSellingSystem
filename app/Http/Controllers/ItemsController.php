@@ -7,11 +7,12 @@ use App\Item;
 use App\Recipient;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class ItemsController extends Controller {
 
-    public function create(Request $request)
+    public function create()
     {
         $toBeValidated = [
             'name'        => 'required|max:255',
@@ -21,49 +22,44 @@ class ItemsController extends Controller {
             'unit_price'  => 'required|numeric|digits_between:1,10',
             'images'      => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
-        if ($failMessage = Helpers::validation($toBeValidated, $request))
+        if ($failMessage = Helpers::validation($toBeValidated, request()))
         {
             return Helpers::result(false, $failMessage, 400);
         }
 
-        $items = new Item();
-        $items->name = $request->name;
-        $items->description = $request->description;
-        $items->stock = $request->stock;
-        $items->cost = $request->cost;
-        $items->unit_price = $request->unit_price;
-        $items->user_id = User::getUserID($request);
+        $parameters = request()->all();
 
-        if ($request->hasFile('images'))
+        if (request()->hasFile('images'))
         {
-            $images = $request->file('images');
-            $fileName = time() . '.' . Helpers::createAUniqueNumber() . '.' . $request->images->getClientOriginalExtension();
-            $images->move('../storage/app/public/upload/', $fileName);
-            $items->images = $fileName;
-            $items->save();
-            Image::configure(array('driver' => 'gd'));
-            Image::make('../storage/app/public/upload/'.$fileName)->resize(300, 300)->save('../storage/app/public/upload/'.$fileName);
+            $parameters['images'] = request()->file('images')->store('public/upload');
         }
-        $items->save();
+
+        $parameters['user_id'] = User::getUserID(request());
+
+        $item = Item::create($parameters);
+
+        if ($item->images)
+            Item::resize($item->images);
 
         return Helpers::result(true, 'The item is successfully created', 200);
     }
 
     public function get(Request $request)
     {
-        if(Item::checkIfAnyItemUploaded($request))
+        if (Item::checkIfAnyItemUploaded($request))
         {
             return Helpers::result(true, [], 200);
         }
 
         $items = Item::orderBy('created_at', 'desc')->where('user_id', User::getUserID($request))->get();
         $response = [];
-        foreach($items as $item)
+        foreach ($items as $item)
         {
             $withoutImages = $item->only(['id', 'name', 'description', 'stock', 'cost', 'unit_price']);
-            $addedImagesLink = array_add($withoutImages, 'images', $item->images == null ? null : secure_asset('storage/upload/'.$item->images));
+            $addedImagesLink = array_add($withoutImages, 'images', $item->images == null ? null : Item::getImageURL($item->images));
             $response[] = $addedImagesLink;
         }
+
         return Helpers::result(true, $response, 200);
     }
 
@@ -83,48 +79,39 @@ class ItemsController extends Controller {
             return Helpers::result(false, $failMessage, 400);
         }
 
-        Item::where('id', $item->id)->update([
-            'name'        => $request->name,
-            'description' => $request->description,
-            'stock'       => $request->stock,
-            'cost'        => $request->cost,
-            'unit_price'  => $request->unit_price,
-        ]);
+        $parameters = request()->all();
 
-        if ($request->hasFile('images'))
+        if (request()->hasFile('images'))
         {
-            $oldFile = '../storage/app/public/upload/' . $item->images;
-            if(file_exists($oldFile))
-                @unlink($oldFile);
-
-            $images = $request->file('images');
-            $fileName = time() . '.' . Helpers::createAUniqueNumber() . '.' . $request->images->getClientOriginalExtension();
-            $images->move('../storage/app/public/upload/', $fileName);
-            $item->images = $fileName;
-            Image::configure(array('driver' => 'gd'));
-            Image::make('../storage/app/public/upload/' . $fileName)->resize(300, 300)->save('../storage/app/public/upload/' . $fileName);
+            Storage::delete($item->images);
+            $parameters['images'] = request()->file('images')->store('public/upload');
         }
+
+        $parameters['user_id'] = User::getUserID(request());
+
+        $item->update($parameters);
+
+        if ($item->images)
+            Item::resize($item->images);
+
         if ($request->imageDelete == true)
         {
-            $oldFile = '../storage/app/public/upload/' . $item->images;
-            if(file_exists($oldFile))
-                @unlink($oldFile);
-            $item->images = NULL;
+            Storage::delete($item->images);
+            $item->update(['images' => null]);
         }
-
-        $item->save();
 
         return Helpers::result(true, 'The item is successfully updated', 200);
     }
 
     public function destroy(Request $request)
     {
-        if(!Helpers::checkIfIDExists($request, new Item, 'items'))
+        if (!Helpers::checkIfIDExists($request, new Item, 'items'))
             return Helpers::result(false, 'Invalid parameters', 400);
-        if(!Helpers::checkIfBelongToTheUser($request, new Item(), 'items'))
+        if (!Helpers::checkIfBelongToTheUser($request, new Item(), 'items'))
             return Helpers::result(false, 'Invalid parameters', 400);
 
         Item::destroy($request->items);
+
         return Helpers::result(true, 'The item has been successfully deleted', 200);
     }
 
