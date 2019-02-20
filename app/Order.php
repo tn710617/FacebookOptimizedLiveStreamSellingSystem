@@ -220,8 +220,8 @@ class Order extends Model {
         $order->city = $recipient->city;
         $order->district = $recipient->district;
         $order->others = $recipient->others;
-        $order->expiry_time = Carbon::now()->addDays(env('DAYSOFORDERTOBEEXPIRED'))->toDateTimeString();
-        $order->to_be_deleted_time = Carbon::now()->addDays(env('DAYSOFORDERTOBEDELETED'))->toDateTimeString();
+        $order->expiry_time = Carbon::now()->addDays(env('DAYS_OF_ORDER_TO_BE_EXPIRED'))->toDateTimeString();
+        $order->to_be_deleted_time = Carbon::now()->addDays(env('DAYS_OF_ORDER_TO_BE_DELETED'))->toDateTimeString();
         $order->save();
 
         return $order;
