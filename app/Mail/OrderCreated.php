@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -40,7 +41,7 @@ class OrderCreated extends Mailable {
                 'quantity'         => $this->order->quantity,
                 'total_amount'     => $this->order->total_amount,
                 'unit_price'       => $this->order->unit_price,
-                'expiry_time'      => $this->order->expiry_time,
+                'expiry_time'      => Carbon::parse($this->order->expiry_time)->addHours(8),
             ]);
     }
 }
