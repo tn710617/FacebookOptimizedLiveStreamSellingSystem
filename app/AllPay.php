@@ -158,15 +158,7 @@ class AllPay extends Model {
             $orderRelations = $AllPayPaymentOrders->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations->where('payment_service_id', 1);
             Order::updateStatus($orderRelations);
 
-            $user_id = $AllPayPaymentOrders->user->id;
-            $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
-            $Local_email = User::where('id', $user_id)->first()->email;
-
-            if ($FB_email !== null)
-                Mail::to($FB_email)->send(new PaymentReceived($AllPayPaymentOrders , $orderRelations));
-
-            elseif ($Local_email !== null)
-                Mail::to($Local_email)->send(new PaymentReceived($AllPayPaymentOrders , $orderRelations));
+            Helpers::mailWhenPaid($AllPayPaymentOrders, $orderRelations);
 
             return true;
         }

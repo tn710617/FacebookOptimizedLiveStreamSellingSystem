@@ -4,15 +4,19 @@
 namespace App;
 
 
+use App\Mail\PaymentReceived;
+use App\Mail\PaymentReceivedForSeller;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
 class Helpers {
+
     public static function result($result, $response, $statusCode)
     {
         return Response::json(['result' => $result, 'response' => $response], $statusCode);
@@ -55,7 +59,7 @@ class Helpers {
         return $response->getGraphUser();
     }
 
-    public static function getExpiryTime (Request $request)
+    public static function getExpiryTime(Request $request)
     {
         if (isset($request->expirationDate))
         {
@@ -68,6 +72,7 @@ class Helpers {
 
         return $expiry_time;
     }
+
     public static function validation(Array $toBeValidatedCondition, $toBeValidatedContent)
     {
         $validator = validator::make($toBeValidatedContent->all(), $toBeValidatedCondition);
@@ -85,6 +90,7 @@ class Helpers {
             $uniqueToken = str_random(6);
             $checkTokenCount = Channel::where('name', $uniqueToken)->count();
         }
+
         return $uniqueToken;
     }
 
@@ -105,7 +111,7 @@ class Helpers {
 
     public static function convertObjectsToArrays($objects)
     {
-        return array_map(function($object){
+        return array_map(function ($object) {
             return (array) $object;
         }, $objects);
     }
@@ -119,6 +125,7 @@ class Helpers {
                 $object->$toBeConvertedKey = (int) $object->$toBeConvertedKey;
             }
         }
+
         return $objects;
     }
 
@@ -159,6 +166,31 @@ class Helpers {
             }
             $toBeDeletedPaymentServiceOrders->delete();
         }
+    }
+
+    public static function mailWhenPaid($paymentService, $orderRelations)
+    {
+        $user_id = $paymentService->user->id;
+        $Seller_user_id = $orderRelations->first()->order->channel->user_id;
+
+        $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
+        $Seller_FB_email = Helpers::getFacebookResources(Token::getLatestToken($Seller_user_id))->getEmail();
+
+        $Seller_local_email = User::where('id', $Seller_user_id)->first()->email;
+        $Local_email = User::where('id', $user_id)->first()->email;
+
+        if ($FB_email !== null)
+        {
+            Mail::to($FB_email)->send(new PaymentReceived($paymentService, $orderRelations));
+            Mail::to($Seller_FB_email)->send(new PaymentReceivedForSeller($paymentService, $orderRelations));
+        }
+
+        elseif ($Local_email !== null)
+        {
+            Mail::to($Local_email)->send(new PaymentReceived($paymentService, $orderRelations));
+            Mail::to($Seller_local_email)->send(new PaymentReceivedForSeller($paymentService, $orderRelations));
+        }
+
     }
 
 }

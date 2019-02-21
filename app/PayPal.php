@@ -197,26 +197,7 @@ class PayPal extends Model {
 
                     Order::updateStatus($orderRelations);
 
-                    $user_id = $PayPal->user->id;
-                    $Seller_user_id = $orderRelations->first()->order->channel->user_id;
-
-                    $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
-                    $Seller_FB_email = Helpers::getFacebookResources(Token::getLatestToken($Seller_user_id))->getEmail();
-
-                    $Seller_local_email = User::where('id', $Seller_user_id)->first()->email;
-                    $Local_email = User::where('id', $user_id)->first()->email;
-
-                    if ($FB_email !== null)
-                    {
-                        Mail::to($FB_email)->send(new PaymentReceived($PayPal, $orderRelations));
-                        Mail::to($Seller_FB_email)->send(new PaymentReceivedForSeller($PayPal, $orderRelations));
-                    }
-
-                    elseif ($Local_email !== null)
-                    {
-                        Mail::to($Local_email)->send(new PaymentReceived($PayPal, $orderRelations));
-                        Mail::to($Seller_local_email)->send(new PaymentReceivedForSeller($PayPal, $orderRelations));
-                    }
+                    Helpers::mailWhenPaid($PayPal, $orderRelations);
                 }
             }
         } elseif ($enable_sandbox)
