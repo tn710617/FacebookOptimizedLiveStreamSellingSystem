@@ -69,6 +69,8 @@ class OrdersController extends Controller {
 
     public function getBuyerOrders(Request $request)
     {
+        if (!Order::checkIfUserPlacedOrders($request))
+            return Helpers::result(true, [], 200);
         $orders = User::getUser($request)->order;
         $response = Order::foreachAndRefineOrders($orders);
 
