@@ -81,7 +81,7 @@ class UsersController extends Controller {
                      'email'   => $me->getEmail() ?? User::getUser($request)->email,
                      'avatar'  => 'https://graph.facebook.com/' . User::getUser($request)->FB_id . '/picture?type=large',
                      'user_id' => User::getUserID($request),
-                     'phone'   => 'NULL'
+                     'phone'   => null
         ];
         if (User::checkIfUserHasAPhone($request))
         {
