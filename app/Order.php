@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class Order extends Model {
 
     protected $fillable = [
-        'status', 'expiry_time', 'to_be_deleted_time'
+        'status', 'expiry_time', 'to_be_deleted_time', 'recipient', 'phone_code', 'phone_number', 'post_code', 'country', 'city', 'district', 'others',
     ];
 
     public function channel()
@@ -172,11 +172,23 @@ class Order extends Model {
         return false;
     }
 
-    public static function updateStatus($orderRelations)
+    public static function updateStatus($orderRelations, Recipient $recipient)
     {
         foreach ($orderRelations as $orderRelation)
         {
-            $orderRelation->order->update(['status' => 1, 'expiry_time' => null, 'to_be_deleted_time' => null]);
+            $orderRelation->order->update([
+                'status'             => 1,
+                'expiry_time'        => null,
+                'to_be_deleted_time' => null,
+                'recipient'          => $recipient->name,
+                'phone_code'         => $recipient->phone->phone_code,
+                'phone_number'       => $recipient->phone->phone_number,
+                'post_code'          => $recipient->postcode,
+                'country'            => DB::table('country')->where('iso', $recipient->country_code)->first()->nicename,
+                'city'               => $recipient->city,
+                'district'           => $recipient->district,
+                'others'             => $recipient->others,
+            ]);
         }
     }
 
@@ -193,7 +205,7 @@ class Order extends Model {
         return false;
     }
 
-    public static function createOrderAndGetInstance(Request $request, Item $item, Recipient $recipient)
+    public static function createOrderAndGetInstance(Request $request, Item $item)
     {
         $total_cost = $item->cost * $request->number;
         $total_amount = $item->unit_price * $request->number;
@@ -214,14 +226,6 @@ class Order extends Model {
         $order->total_amount = $total_amount;
         $order->channel_id = $buyer->channel_id;
         $order->images = $item->images;
-        $order->recipient = $recipient->name;
-        $order->phone_code = $recipient->phone->phone_code;
-        $order->phone_number = $recipient->phone->phone_number;
-        $order->post_code = $recipient->postcode;
-        $order->country = DB::table('country')->where('iso', $recipient->country_code)->first()->nicename;
-        $order->city = $recipient->city;
-        $order->district = $recipient->district;
-        $order->others = $recipient->others;
         $order->expiry_time = Carbon::now()->addDays(env('DAYS_OF_ORDER_TO_BE_EXPIRED'))->toDateTimeString();
         $order->to_be_deleted_time = Carbon::now()->addDays(env('DAYS_OF_ORDER_TO_BE_DELETED'))->toDateTimeString();
         $order->save();

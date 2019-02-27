@@ -6,6 +6,7 @@ use App\Helpers;
 use App\Order;
 use App\AllPay;
 use App\PayPal;
+use App\Recipient;
 use App\ThirdPartyPaymentService;
 use App\User;
 use Carbon\Carbon;
@@ -26,7 +27,7 @@ class PaymentsController extends Controller {
             return '1|OK';
     }
 
-    public function pay(Request $request, ThirdPartyPaymentService $thirdPartyPaymentService)
+    public function pay(Request $request, ThirdPartyPaymentService $thirdPartyPaymentService, Recipient $recipient)
     {
         $toBeValidatedCondition = [
             'order_id' => 'required|array',
@@ -50,6 +51,9 @@ class PaymentsController extends Controller {
         if (Order::checkIfOrderExpired($orders))
             return Helpers::result(false, 'The order has expired', 400);
 
+        if ($recipient->user_id !== User::getUserID($request))
+            return Helpers::result(false, 'The recipient doesn\'t belong to the user', 400);
+
         $toBeSavedInfo = [
             'total_amount' => Order::getTotalAmountForPayments($orders),
             'orders_name' => Order::getOrdersNameForPayments($orders),
@@ -67,7 +71,7 @@ class PaymentsController extends Controller {
         switch ($thirdPartyPaymentService->id)
         {
             case 1:
-                $error = (new AllPay)->make($toBeSavedInfo, $request);
+                $error = (new AllPay)->make($toBeSavedInfo, $request, $recipient);
                 if($error)
                     return Helpers::result(false, $error,400);
 
@@ -75,7 +79,7 @@ class PaymentsController extends Controller {
                 break;
 
             case 2:
-                $error = (new PayPal)->make($toBeSavedInfo, $request);
+                $error = (new PayPal)->make($toBeSavedInfo, $request, $recipient);
                 if($error)
                     return Helpers::result(false, $error, 400);
 

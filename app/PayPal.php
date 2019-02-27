@@ -2,33 +2,33 @@
 
 namespace App;
 
-use App\Mail\PaymentReceived;
-use App\Mail\PaymentReceivedForSeller;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use PaypalIPN;
 
 class PayPal extends Model {
 
-    protected $fillable = ['txn_id', 'txn_type', 'payment_date', 'status', 'expiry_time'];
+    protected $fillable = ['txn_id', 'txn_type', 'payment_date', 'status', 'expiry_time', 'recipient_id'];
 
     public function orderRelations()
     {
         return $this->hasMany('App\OrderRelations', 'payment_service_order_id', 'id');
     }
 
+    public function recipient()
+    {
+        return $this->hasOne('App\Recipient', 'id', 'recipient_id');
+    }
 
     public function user()
     {
         return $this->belongsTo('App\User', 'user_id', 'id');
     }
 
-    public function make(Array $toBeSavedInfo, Request $request)
+    public function make(Array $toBeSavedInfo, Request $request, Recipient $recipient)
     {
         DB::beginTransaction();
         try
@@ -43,6 +43,7 @@ class PayPal extends Model {
             $PayPal->trade_desc = $toBeSavedInfo['trade_desc'];
             $PayPal->item_name = $toBeSavedInfo['orders_name'];
             $PayPal->mc_currency = $toBeSavedInfo['mc_currency'];
+            $PayPal->recipient_id = $recipient->id;
             $PayPal->save();
 
             foreach ($toBeSavedInfo['orders'] as $order)
@@ -56,7 +57,6 @@ class PayPal extends Model {
         } catch (Exception $e)
         {
             DB::rollBack();
-
             return 'something went wrong with DB';
         }
         DB::commit();
@@ -105,13 +105,12 @@ class PayPal extends Model {
         $queryString = http_build_query($data);
 
         // Redirect to paypal IPN
-        if($request->source == 'mobile')
-        {
             $url = $paypalUrl . '?' . $queryString;
+
             return $url;
-        }
-        header('location:' . $paypalUrl . '?' . $queryString);
-        exit();
+
+//        header('location:' . $paypalUrl . '?' . $queryString);
+//        exit();
     }
 
     public function listen(Request $request)
@@ -192,10 +191,11 @@ class PayPal extends Model {
                 if ((!PayPal::checkIfTxnIdExists($txn_id)) && ($mc_gross == $PayPal->total_amount) && ($mc_currency == $PayPal->mc_currency) && ($payment_status == 'Completed'))
                 {
                     $PayPal->update(['txn_id' => $txn_id, 'txn_type' => $txn_type, 'payment_date' => $payment_date, 'status' => 1, 'expiry_time' => null]);
+                    $recipient = $PayPal->recipient;
 
                     $orderRelations = $PayPal->orderRelations->where('payment_service_id', 2);
 
-                    Order::updateStatus($orderRelations);
+                    Order::updateStatus($orderRelations, $recipient);
 
                     Helpers::mailWhenPaid($PayPal, $orderRelations);
                 }

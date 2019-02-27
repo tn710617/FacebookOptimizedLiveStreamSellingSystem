@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use PaymentMethod;
 
@@ -28,6 +29,10 @@ class AllPay extends Model {
         return $this->hasMany('App\OrderRelations', 'payment_service_order_id', 'id');
     }
 
+    public function recipient()
+    {
+        return $this->hasOne('App\Recipient', 'id', 'recipient_id');
+    }
 
     public function send(Array $toBeSavedInfo, Request $request)
     {
@@ -94,7 +99,7 @@ class AllPay extends Model {
 
     }
 
-    public function make(Array $toBeSavedInfo, Request $request)
+    public function make(Array $toBeSavedInfo, Request $request, Recipient $recipient)
     {
         DB::beginTransaction();
         try
@@ -110,6 +115,7 @@ class AllPay extends Model {
             $AllPay->total_amount = $toBeSavedInfo['total_amount'];
             $AllPay->TradeDesc = $toBeSavedInfo['trade_desc'];
             $AllPay->ItemName = $toBeSavedInfo['orders_name'];
+            $AllPay->recipient_id = $recipient->id;
             $AllPay->save();
 
             foreach ($toBeSavedInfo['orders'] as $order)
@@ -154,9 +160,10 @@ class AllPay extends Model {
         {
             $AllPayPaymentOrders = (new AllPay)->where('MerchantTradeNo', $request->MerchantTradeNo)->first();
             $AllPayPaymentOrders->update(['status' => 1, 'expiry_time' => null]);
+            $recipient = $AllPayPaymentOrders->recipient;
 
             $orderRelations = $AllPayPaymentOrders->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations->where('payment_service_id', 1);
-            Order::updateStatus($orderRelations);
+            Order::updateStatus($orderRelations, $recipient);
 
             Helpers::mailWhenPaid($AllPayPaymentOrders, $orderRelations);
 

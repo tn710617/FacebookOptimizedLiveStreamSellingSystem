@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Mail;
 
 class OrdersController extends Controller {
 
-    public function create(Request $request, Item $item, Recipient $recipient)
+    public function create(Request $request, Item $item)
     {
         $toBeValidatedCondition = [
             'number'   => 'required|integer',
@@ -42,15 +42,13 @@ class OrdersController extends Controller {
 
         $buyer = User::getUser($request);
 
-        if ($recipient->user_id !== $buyer->id)
-            return Helpers::result(false, 'The recipient doesn\'t belong to the user', 400);
 
         $streamingItem = StreamingItem::getStreamingItems($buyer->channel_id);
 
         if ((!StreamingItem::checkIfItemOnStream($streamingItem, $item)))
             return Helpers::result(false, 'The item is not currently on the stream', 400);
 
-        $order = Order::createOrderAndGetInstance($request, $item, $recipient);
+        $order = Order::createOrderAndGetInstance($request, $item);
 
         StreamingItem::updateRemainingQuantity($streamingItem, $request->number);
 

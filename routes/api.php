@@ -22,7 +22,7 @@ Route::post('/allpaylistener', 'PaymentsController@listenAllPay');
 Route::post('/paypallistener', 'PaymentsController@listenPayPal');
 
 Route::middleware('tokenValidator')->group(function(){
-    Route::post('/payments/{thirdPartyPaymentService}', 'PaymentsController@pay');
+    Route::post('/payments/{thirdPartyPaymentService}/{recipient}', 'PaymentsController@pay');
     Route::post('/test', 'TestController@test');
     Route::get('/user-status', 'UsersController@getUserStatus');
     Route::post('/test', 'TestController@test');
@@ -35,7 +35,7 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/country-code', 'UsersController@getCountryAndPhoneCode');
     Route::patch('/user-channel-id', 'LiveStreamController@join');
     Route::get('/streaming-items', 'LiveStreamController@show');
-    Route::post('/orders/{item}/{recipient}', 'OrdersController@create');
+    Route::post('/orders/{item}', 'OrdersController@create');
     Route::put('/users-channel-id', 'LiveStreamController@end');
     Route::post('/recipients', 'UsersController@createNewRecipients');
     Route::delete('/recipients', 'UsersController@destroyRecipients');
