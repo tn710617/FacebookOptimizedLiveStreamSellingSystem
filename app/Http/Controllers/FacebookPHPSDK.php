@@ -21,7 +21,7 @@ class FacebookPHPSDK extends Controller {
 //        var_dump((time()));
 //
 //        dd('123');
-        $fb = new \Facebook\Facebook([
+        $fb = new Facebook([
             'app_id'                => '326735094614431',
             'app_secret'            => 'f55684b5977c0c3a684350a06535ee44',
             'default_graph_version' => 'v3.2',

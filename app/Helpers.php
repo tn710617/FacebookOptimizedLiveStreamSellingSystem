@@ -59,20 +59,6 @@ class Helpers {
         return $response->getGraphUser();
     }
 
-    public static function getExpiryTime(Request $request)
-    {
-        if (isset($request->expirationDate))
-        {
-            $expiry_time = Carbon::parse($request->expirationDate)->timestamp;
-        }
-        if (isset($request->expiresIn))
-        {
-            $expiry_time = time() + $request->expiresIn;
-        }
-
-        return $expiry_time;
-    }
-
     public static function validation(Array $toBeValidatedCondition, $toBeValidatedContent)
     {
         $validator = validator::make($toBeValidatedContent->all(), $toBeValidatedCondition);
@@ -191,6 +177,12 @@ class Helpers {
             Mail::to($Seller_local_email)->send(new PaymentReceivedForSeller($paymentService, $orderRelations));
         }
 
+    }
+
+    public static function getLongLivedToken($token)
+    {
+        $url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id='.env('FACEBOOK_API_APP_ID').'&client_secret='.env('FACEBOOK_API_APP_SECRET').'&fb_exchange_token='.$token.'';
+        return json_decode(file_get_contents($url), true);
     }
 
 }

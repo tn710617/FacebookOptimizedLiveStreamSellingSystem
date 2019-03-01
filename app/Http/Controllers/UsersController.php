@@ -8,6 +8,7 @@ use App\Recipient;
 use App\Token;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller {
@@ -36,20 +37,26 @@ class UsersController extends Controller {
             return Helpers::result(false, 'The token is invalid', 401);
         }
 
-        $me = Helpers::getFacebookResources($request->bearerToken());
+        $tokenDetail = Helpers::getLongLivedToken($request->bearerToken());
 
-        $expiry_time = Helpers::getExpiryTime($request);
+        $token = $tokenDetail['access_token'];
+
+        $response = Arr::except($tokenDetail, ['token_type']);
+
+        $me = Helpers::getFacebookResources($token);
+
+        $expiry_time = $tokenDetail['expires_in'];
 
         if (Token::checkIfUserExists($me) > 0)
         {
             $user_id = User::getUserIDViaFACEBOOK($me);
             Token::forceCreate([
-                'name'        => $request->bearerToken(),
+                'name'        => $token,
                 'user_id'     => $user_id,
-                'expiry_time' => $expiry_time
+                'expiry_time' => time() + $expiry_time,
             ]);
 
-            return Helpers::result(true, 'The token is effective', 200);
+            return Helpers::result(true, $response, 200);
         }
 
         User::updateOrCreate(['FB_id' => $me->getId()], [
@@ -59,19 +66,13 @@ class UsersController extends Controller {
             'expiry_time' => $expiry_time
         ]);
 
-//        $user = new User();
-//        $user->name = $me->getName();
-//        $user->FB_id = $me->getId();
-//        $user->email = $me->getEmail();
-//        $user->save();
-
         Token::forceCreate([
-            'name'        => $request->bearerToken(),
+            'name'        => $token,
             'user_id'     => User::getUserIDViaFACEBOOK($me),
             'expiry_time' => $expiry_time
         ]);
 
-        return Helpers::result(true, 'The token is effective', 200);
+        return Helpers::result(true, $response, 200);
     }
 
     public function get(Request $request)
@@ -155,7 +156,7 @@ class UsersController extends Controller {
     {
         if (Recipient::countRecipientQuantity($request) == 0)
         {
-            return Helpers::result(false, [],200);
+            return Helpers::result(false, [], 200);
         }
         $recipients = Recipient::where('user_id', User::getUserID($request))->get();
         $response = [];
@@ -254,8 +255,8 @@ class UsersController extends Controller {
                 'phone_code'   => $request->phone['phone_code'],
                 'phone_number' => $request->phone['phone_number']
             ]);
-            if(isset($request->email))
-            $user->update(['email' => $request->email]);
+            if (isset($request->email))
+                $user->update(['email' => $request->email]);
 
             return Helpers::result(true, 'User\'s information has been successfully updated', 200);
         }
