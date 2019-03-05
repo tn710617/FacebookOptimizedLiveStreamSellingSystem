@@ -57,60 +57,70 @@ class PayPal extends Model {
         } catch (Exception $e)
         {
             DB::rollBack();
+
             return 'something went wrong with DB';
         }
         DB::commit();
     }
 
-    public function send(Array $toBeSavedInfo, Request $request)
+    public function send(Array $toBeSavedInfo, Request $request, Recipient $recipient)
     {
         $enableSandbox = env('PAYPAL_SANDBOX_ENABLESANDBOX');
 
         $paypalUrl = $enableSandbox ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
 
-// Product being purchased.
-
-        // Grab the post data so that we can set up the query string for PayPal.
-        // Ideally we'd use a whitelist here to check nothing is being injected into
-        // our post data.
         $data = [];
 
-        foreach ($request->post() as $key => $value)
-        {
-            $data[$key] = $value;
-        }
-
-        // Set the PayPal account.
+        // Set the PayPal account
         $data['business'] = env('PAYPAL_SANDBOX_MAIL');
 
-        // Set the PayPal return addresses.
-        $data['return'] = $data['ClintBackURL'];
+        // Set the PayPal return addresses, after the transaction is completed, the user could be back via this URL.
+        $data['return'] = $toBeSavedInfo['ClintBackURL'];
+
+        // During the transaction process on PayPal's site, the user could cancel the transaction and go back via this URL.
         $data['cancel_return'] = env('PAYPAL_SANDBOX_CANCEL_URL');
+
+        // After the transaction is completed, PayPal will send IPN message to this URL.
         $data['notify_url'] = env('PAYPAL_SANDBOX_NOFITY_URL');
 
-        // Set the details about the product being purchased, including the amount
+        // Set the details about the products being purchased, including the price for every individual
         // and currency so that these aren't overridden by the form data.
-        $data['item_name'] = $toBeSavedInfo['orders_name'];
-        $data['amount'] = $toBeSavedInfo['total_amount'];
+        $i = 1;
+        foreach ($toBeSavedInfo['orders'] as $order)
+        {
+            $data["item_name_$i"] = $order->item_name;
+            $data["item_number_$i"] = $order->quantity;
+            $data["amount_$i"] = $order->total_amount;
+            $i++;
+        }
+
         $data['currency_code'] = $toBeSavedInfo['mc_currency'];
 
         // Add any custom fields for the query string.
         $data['custom'] = $toBeSavedInfo['merchant_trade_no'];
 
-        // Add cmd
+        // Add recipient's information
+        $data['address_override'] = 1;
+        $data['country'] = $recipient->country_code;
+        $data['city'] = $recipient->city;
+        $data['address1'] = $recipient->others;
+        $data['zip'] = $recipient->postcode;
+        $data['first_name'] = $recipient->name;
 
-        $data['cmd'] = "_xclick";
+        // This setting allow to add multiple items with IPN method
+        $data['upload'] = '1';
+        $data['cmd'] = "_cart";
+
+        // Add charset
+        $data['charset'] = 'utf-8';
 
         // Build the query string from the data.
         $queryString = http_build_query($data);
 
-        // Redirect to paypal IPN
-            $url = $paypalUrl . '?' . $queryString;
+        // Build the URL to PayPal
+        $url = $paypalUrl . '?' . $queryString;
 
-            return $url;
-
-//        header('location:' . $paypalUrl . '?' . $queryString);
-//        exit();
+        return $url;
     }
 
     public function listen(Request $request)

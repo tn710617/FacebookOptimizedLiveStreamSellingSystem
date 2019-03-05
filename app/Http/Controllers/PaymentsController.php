@@ -65,7 +65,8 @@ class PaymentsController extends Controller {
             'payment_service' => $thirdPartyPaymentService,
             'expiry_time' => (new Carbon())->now()->addDay(1)->toDateTimeString(),
             'orders' => $orders,
-            'mc_currency' => 'TWD'
+            'mc_currency' => 'TWD',
+            'ClintBackURL' => $request->ClintBackURL
         ];
 
         switch ($thirdPartyPaymentService->id)
@@ -83,7 +84,7 @@ class PaymentsController extends Controller {
                 if($error)
                     return Helpers::result(false, $error, 400);
 
-                $url = (new PayPal)->send($toBeSavedInfo, $request);
+                $url = (new PayPal)->send($toBeSavedInfo, $request, $recipient);
                 return Helpers::result(true, $url, 200);
                 break;
         }
