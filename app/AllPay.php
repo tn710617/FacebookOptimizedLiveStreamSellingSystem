@@ -60,12 +60,14 @@ class AllPay extends Model {
             $obj->Send['ChoosePayment'] = PaymentMethod::ALL;                           //付款方式:Credit
 
             //訂單的商品資料
-            array_push($obj->Send['Items'], array('Name'     => $toBeSavedInfo['orders_name'],
-                                                  'Price'    => (int) $toBeSavedInfo['total_amount'],
-                                                  'Currency' => "元",
-                                                  'Quantity' => (int) $toBeSavedInfo['quantity'],
-                                                  'URL'      => "dedwed"));
-
+            foreach($toBeSavedInfo['orders'] as $order)
+            {
+                array_push($obj->Send['Items'], array('Name'     => $order->item_name,
+                                                      'Price'    => (int) $order->unit_price,
+                                                      'Currency' => "元",
+                                                      'Quantity' => (int) $order->quantity,
+                                                      'URL'      => "dedwed"));
+            }
 
             # 電子發票參數
             /*
