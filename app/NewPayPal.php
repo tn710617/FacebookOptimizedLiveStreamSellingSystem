@@ -11,7 +11,7 @@ use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 
 class NewPayPal extends Model {
 
-    protected $fillable = ['status', 'expiry_time', 'approve_date', 'to_be_captured_date', 'authorization_expiry_date', 'to_be_captured+amount', 'authorization_id'];
+    protected $fillable = ['status', 'expiry_time', 'approve_date', 'to_be_captured_date', 'authorization_expiry_date', 'to_be_captured_amount', 'authorization_id', 'to_be_completed_date'];
 
     public function user()
     {
