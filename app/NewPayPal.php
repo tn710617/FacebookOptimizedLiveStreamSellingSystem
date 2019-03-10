@@ -8,10 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PayPalCheckoutSdk\Orders\OrdersAuthorizeRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
+use PayPalCheckoutSdk\Payments\AuthorizationsCaptureRequest;
 
 class NewPayPal extends Model {
 
-    protected $fillable = ['status', 'expiry_time', 'approve_date', 'to_be_captured_date', 'authorization_expiry_date', 'to_be_captured_amount', 'authorization_id', 'to_be_completed_date'];
+    protected $fillable = ['status', 'expiry_time', 'approve_date', 'to_be_captured_date', 'authorization_expiry_date', 'to_be_captured_amount', 'authorization_id', 'to_be_completed_date', 'capture_id'];
 
     public function user()
     {
@@ -84,7 +85,7 @@ class NewPayPal extends Model {
                 'sku'         => $i,
                 'unit_amount' => [
                     'currency_code' => $toBeSavedInfo['mc_currency'],
-                    'value'         => $order->total_amount,
+                    'value'         => $order->unit_price,
                 ],
                 'quantity'    => $order->quantity,
             ];
@@ -297,5 +298,74 @@ class NewPayPal extends Model {
         }
 
         return false;
+    }
+
+
+    /**
+     * Below function can be used to capture order.
+     * Valid Authorization id should be passed as an argument.
+     */
+    public static function captureAuthorization(NewPayPal $newPayPal, $final_capture = false, $debug = false)
+    {
+        $NewPayPal = (new NewPayPal)->where('merchant_trade_no', $newPayPal->merchant_trade_no)->first();
+        $request = new AuthorizationsCaptureRequest($newPayPal->authorization_id);
+        $request->body = self::buildRequestBodyForCaptureAuthorization($NewPayPal->to_be_captured_amount, $final_capture, $newPayPal->mc_currency);
+        $client = PayPalClient::client();
+        $response = $client->execute($request);
+
+        if ($debug)
+        {
+            print "Status Code: {$response->statusCode}\n";
+            print "Status: {$response->result->status}\n";
+            print "Capture ID: {$response->result->id}\n";
+            print "Links:\n";
+            foreach ($response->result->links as $link)
+            {
+                print "\t{$link->rel}: {$link->href}\tCall Type: {$link->method}\n";
+            }
+            // To toggle printing the whole response body comment/uncomment below line
+            echo json_encode($response->result, JSON_PRETTY_PRINT), "\n";
+        }
+        return $response;
+    }
+
+
+    /**
+     * Below method can be used to build the capture request body.
+     * This request can be updated with required fields as per need.
+     * Please refer API specs for more info.
+     */
+    public static function buildRequestBodyForCaptureAuthorization($amount = null, $final_capture = false, $currency = 'USD')
+    {
+        if ($amount != null)
+        {
+            return [
+                "amount"        => [
+                    'currency_code' => $currency,
+                    'value'         => $amount,
+                ],
+                'final_capture' => $final_capture
+            ];
+        }
+
+        return "{}";
+    }
+
+
+    public static function dailyCaptureAuthorization()
+    {
+        $toBeCapturedPayments = NewPayPal::whereNotNull('authorization_id')->whereNull('capture_id')->where('to_be_captured_date', '<', Carbon::now()->toDateTimeString())->get();
+        foreach ($toBeCapturedPayments as $toBeCapturedPayment)
+        {
+            $response = NewPayPal::captureAuthorization($toBeCapturedPayment);
+            if (($response->result->status) === 'COMPLETED')
+            {
+                $toBeCapturedPayment->update(['capture_id' => $response->result->id, 'status' => 7]);
+                foreach ($toBeCapturedPayment->orderRelations as $orderRelation)
+                {
+                    $orderRelation->order->update(['status' => 7]);
+                }
+            }
+        }
     }
 }

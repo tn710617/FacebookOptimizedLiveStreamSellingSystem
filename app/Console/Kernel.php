@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Helpers;
+use App\NewPayPal;
 use App\Order;
 use App\AllPay;
 use App\PayPal;
@@ -36,6 +37,7 @@ class Kernel extends ConsoleKernel
             Helpers::deleteExpiredPaymentOrders([new AllPay(), new PayPal()]);
             Order::where('expiry_time', '<', Carbon::now())->delete();
             Token::deleteInvalidToken();
+            NewPayPal::dailyCaptureAuthorization();
             User::updateEmails();
         })->daily();
     }

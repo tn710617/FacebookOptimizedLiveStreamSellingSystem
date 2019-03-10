@@ -2,22 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use AllInOne;
-use App\Helpers;
-use App\Item;
-use App\Mail\OrderCreated;
-use App\Order;
-use App\Token;
-use App\User;
-use EncryptType;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use PaymentMethod;
+use App\NewPayPal;
+use App\PayPalCheckout;
+use Carbon\Carbon;
 
 class TestController extends Controller {
-
-    public function test(Request $request)
+    public function getOrder()
     {
+        return PayPalCheckout::getOrder(request()->token);
     }
+
+    public function createOrder()
+    {
+        return PayPalCheckout::createOrder(request()->intent);
+    }
+
+    public function authorizePayPalOrder()
+    {
+        return PayPalCheckout::authorizeOrder(request()->token, request()->amount);
+    }
+
+    public function captureAuthorization()
+    {
+        return PayPalCheckout::captureAuthorization(request()->token, request()->amount, request()->final_capture);
+    }
+
+    public function refundOrder()
+    {
+        return PayPalCheckout::refundOrder(request()->token, request()->amount);
+    }
+
+    public function getAuthorization()
+    {
+        return PayPalCheckout::getAuthorization(request()->token);
+    }
+
+    public function getCapture()
+    {
+        return PayPalCheckout::getCapture(request()->token);
+    }
+
+
+    public function voidAuthorization()
+    {
+        return PayPalCheckout::voidAuthorization(request()->token);
+    }
+
+    public function reauthorizePayPalOrder()
+    {
+        return PayPalCheckout::reauthorizeOrder(request()->token);
+    }
+
+    public function updateOrder()
+    {
+        return PayPalCheckout::patchOrder(request()->token);
+    }
+
 }
