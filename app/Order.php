@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class Order extends Model {
 
     protected $fillable = [
-        'status', 'expiry_time', 'to_be_deleted_time', 'recipient', 'phone_code', 'phone_number', 'post_code', 'country', 'city', 'district', 'others',
+        'status', 'expiry_time', 'to_be_deleted_time', 'recipient', 'phone_code', 'phone_number', 'post_code', 'country', 'city', 'district', 'others', 'to_be_completed_time',
     ];
 
     public function channel()
@@ -70,37 +70,36 @@ class Order extends Model {
             if (($order->to_be_deleted_time !== null)
                 && (Carbon::now()->gt($order->expiry_time)))
             {
-                $order->effective = 0;
+                $order->status = 2;
                 $order->save();
             }
 
             $response[] = [
-                'id'                  => $order->id,
-                'order'               => $order->name,
-                'user_id'             => $order->user_id,
-                'seller_name'         => $order->channel->user->name,
-                'name'                => $order->item_name,
-                'channel_description' => $order->channel->channel_description,
-                'description'         => $order->item_description,
-                'unit_price'          => $order->unit_price,
-                'quantity'            => $order->quantity,
-                'total_amount'        => $order->total_amount,
-                'channel_id'          => $order->channel_id,
-                'status'              => $order->status,
-                'effective'           => $order->effective,
-                'expiry_time'         => Carbon::parse($order->expiry_time)->toCookieString(),
-                'time'                => $order->created_at->toCookieString(),
-                'images'              => $order->images == null ? null : Item::getImageURL($order->images),
-                'recipient'           => $order->recipient,
-                'phone_code'          => $order->phone_code,
-                'phone_number'        => $order->phone_number,
-                'post_code'           => $order->post_code,
-                'country'             => $order->country,
-                'city'                => $order->city,
-                'district'            => $order->district,
-                'others'              => $order->others,
-                'effective'           => $order->effective,
-                'to_be_deleted_time'  => Carbon::parse($order->to_be_deleted_time)->toCookieString()
+                'id'                   => $order->id,
+                'order'                => $order->name,
+                'user_id'              => $order->user_id,
+                'seller_name'          => $order->channel->user->name,
+                'name'                 => $order->item_name,
+                'channel_description'  => $order->channel->channel_description,
+                'description'          => $order->item_description,
+                'unit_price'           => $order->unit_price,
+                'quantity'             => $order->quantity,
+                'total_amount'         => $order->total_amount,
+                'channel_id'           => $order->channel_id,
+                'status'               => $order->status,
+                'expiry_time'          => Carbon::parse($order->expiry_time)->toCookieString(),
+                'created_time'         => $order->created_at->toCookieString(),
+                'images'               => $order->images == null ? null : Item::getImageURL($order->images),
+                'recipient'            => $order->recipient,
+                'phone_code'           => $order->phone_code,
+                'phone_number'         => $order->phone_number,
+                'post_code'            => $order->post_code,
+                'country'              => $order->country,
+                'city'                 => $order->city,
+                'district'             => $order->district,
+                'others'               => $order->others,
+                'to_be_deleted_time'   => Carbon::parse($order->to_be_deleted_time)->toCookieString(),
+                'to_be_completed_time' => $order->to_be_completed_time,
             ];
         }
 
@@ -161,33 +160,34 @@ class Order extends Model {
         return Order::where('id', $order_id)->first()->user_id;
     }
 
-    public static function checkIfOrderPaid($orders)
+    public static function checkIfOrderCanBePaid($orders)
     {
         foreach ($orders as $order)
         {
-            if ($order->status == true)
+            if ($order->status !== 1)
                 return true;
         }
 
         return false;
     }
 
-    public static function updateStatus($orderRelations, Recipient $recipient)
+    public static function updateStatus($orderRelations, Recipient $recipient, $statusCode)
     {
         foreach ($orderRelations as $orderRelation)
         {
             $orderRelation->order->update([
-                'status'             => 1,
-                'expiry_time'        => null,
-                'to_be_deleted_time' => null,
-                'recipient'          => $recipient->name,
-                'phone_code'         => $recipient->phone->phone_code,
-                'phone_number'       => $recipient->phone->phone_number,
-                'post_code'          => $recipient->postcode,
-                'country'            => DB::table('country')->where('iso', $recipient->country_code)->first()->nicename,
-                'city'               => $recipient->city,
-                'district'           => $recipient->district,
-                'others'             => $recipient->others,
+                'status'               => $statusCode,
+                'expiry_time'          => null,
+                'to_be_deleted_time'   => null,
+                'to_be_completed_time' => (new Carbon())->now()->addDays(env('DAYS_OF_ORDER_TO_BE_COMPLETED'))->toDateTimeString(),
+                'recipient'            => $recipient->name,
+                'phone_code'           => $recipient->phone->phone_code,
+                'phone_number'         => $recipient->phone->phone_number,
+                'post_code'            => $recipient->postcode,
+                'country'              => DB::table('country')->where('iso', $recipient->country_code)->first()->nicename,
+                'city'                 => $recipient->city,
+                'district'             => $recipient->district,
+                'others'               => $recipient->others,
             ]);
         }
     }
@@ -196,7 +196,7 @@ class Order extends Model {
     {
         foreach ($orders as $order)
         {
-            if ($order->effective == 0)
+            if ($order->status == 2)
             {
                 return true;
             }

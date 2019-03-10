@@ -165,7 +165,7 @@ class AllPay extends Model {
             $recipient = $AllPayPaymentOrders->recipient;
 
             $orderRelations = $AllPayPaymentOrders->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations->where('payment_service_id', 1);
-            Order::updateStatus($orderRelations, $recipient);
+            Order::updateStatus($orderRelations, $recipient, 6);
 
             Helpers::mailWhenPaid($AllPayPaymentOrders, $orderRelations);
 

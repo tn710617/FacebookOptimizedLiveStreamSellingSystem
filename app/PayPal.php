@@ -75,7 +75,7 @@ class PayPal extends Model {
         $data['business'] = env('PAYPAL_SANDBOX_MAIL');
 
         // Set the PayPal return addresses, after the transaction is completed, the user could be back via this URL.
-        $data['return'] = $toBeSavedInfo['ClintBackURL'];
+        $data['return'] = $toBeSavedInfo['ClientBackURL'];
 
         // During the transaction process on PayPal's site, the user could cancel the transaction and go back via this URL.
         $data['cancel_return'] = env('PAYPAL_SANDBOX_CANCEL_URL');
@@ -205,7 +205,7 @@ class PayPal extends Model {
 
                     $orderRelations = $PayPal->orderRelations->where('payment_service_id', 2);
 
-                    Order::updateStatus($orderRelations, $recipient);
+                    Order::updateStatus($orderRelations, $recipient, 7);
 
                     Helpers::mailWhenPaid($PayPal, $orderRelations);
                 }

@@ -284,7 +284,7 @@ class NewPayPal extends Model {
 
         $orderRelations = $NewPayPalOrder->orderRelations->where('payment_service_id', 3);
 
-        Order::updateStatus($orderRelations, $recipient);
+        Order::updateStatus($orderRelations, $recipient, 6);
 
         Helpers::mailWhenPaid($NewPayPalOrder, $orderRelations);
     }
