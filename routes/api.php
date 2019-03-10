@@ -20,6 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/token', 'UsersController@refreshOrCreate');
 Route::post('/allpaylistener', 'PaymentsController@listenAllPay');
 Route::post('/paypallistener', 'PaymentsController@listenPayPal');
+Route::get('/PayPalAuthorize', 'PaymentsController@authorizePayPalOrder');
 
 Route::middleware('tokenValidator')->group(function(){
     Route::post('/payments/{thirdPartyPaymentService}/{recipient}', 'PaymentsController@pay');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers;
+use App\NewPayPal;
 use App\Order;
 use App\AllPay;
 use App\PayPal;
@@ -87,12 +88,41 @@ class PaymentsController extends Controller {
                 $url = (new PayPal)->send($toBeSavedInfo, $request, $recipient);
                 return Helpers::result(true, $url, 200);
                 break;
+
+            case 3:
+                $toBeSavedInfo = (new NewPayPal)->createOrder($toBeSavedInfo, $recipient);
+                $error = (new NewPayPal)->make($toBeSavedInfo, $request, $recipient);
+                if($error)
+                    return $error;
+
+                return Helpers::result(true, $toBeSavedInfo['linkForApproval'], 200);
+                break;
         }
 
     }
+
+    public function authorizePayPalOrder ()
+    {
+        if(NewPayPal::checkIfPaymentIDExists() && !NewPayPal::checkIfPaymentApproved() && isset(request()->PayerID))
+        {
+            $response = NewPayPal::authorizeOrder(request()->token);
+
+            $error = (new NewPayPal)->listen($response);
+            if($error)
+            return $error;
+
+            $redirectURL = NewPayPal::where('payment_id', request()->token)->first()->client_back_url;
+
+            echo 'You\'ve successfully paid the orders, and you will be redirected to your page...';
+
+            header("refresh: 3; $redirectURL");
+        }
+    }
+
 
     public function getPaymentService()
     {
         return Helpers::result(true, ThirdPartyPaymentService::all(), 200);
     }
+
 }
