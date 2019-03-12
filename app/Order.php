@@ -121,7 +121,7 @@ class Order extends Model {
     public static function getProfitInDetail($channel_ID)
     {
         return DB::table('orders')
-            ->where('status', 1)
+            ->where('status', 3)
             ->select(DB::raw('item_name, item_description, round(avg(cost)) as cost, round(avg(unit_price)) as unit_price, sum(profit) as profit, sum(total_cost) as total_cost, sum(quantity) as quantity, sum(total_amount) as turnover'))
             ->whereIn('channel_id', $channel_ID)
             ->groupBy('item_name', 'item_description', 'cost', 'unit_price')
@@ -131,7 +131,7 @@ class Order extends Model {
     public static function getProfitInDetailPerChannel($channel_ID)
     {
         return DB::table('orders')
-            ->where('status', 1)
+            ->where('status', 3)
             ->select(DB::raw('item_name, item_description, round(avg(cost)) as cost, round(avg(unit_price)) as unit_price, sum(profit) as profit, sum(total_cost) as total_cost, sum(quantity) as quantity, sum(total_amount) as turnover'))
             ->where('channel_id', $channel_ID)
             ->groupBy('item_name', 'item_description', 'cost', 'unit_price')
