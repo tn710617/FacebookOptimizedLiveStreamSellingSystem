@@ -187,6 +187,7 @@ class Order extends Model {
     {
         foreach ($orderRelations as $orderRelation)
         {
+            $orderRelation->update(['status' => 7]);
             $orderRelation->order->update([
                 'status'               => $statusCode,
                 'expiry_time'          => null,
