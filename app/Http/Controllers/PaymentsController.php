@@ -47,7 +47,7 @@ class PaymentsController extends Controller {
 
         $orders = Order::whereIn('id', $request->order_id)->get();
 
-        if (Order::checkIfOrderCanBePaid($orders))
+        if (!Order::checkIfOrderCanBePaid($orders))
             return Helpers::result(false, 'The order has already been paid', 400);
 
         if (Order::checkIfOrderExpired($orders))

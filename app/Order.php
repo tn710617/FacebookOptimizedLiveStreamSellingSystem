@@ -176,7 +176,7 @@ class Order extends Model {
     {
         foreach ($orders as $order)
         {
-            if ($order->status !== 1)
+            if ($order->status == 1)
                 return true;
         }
 
