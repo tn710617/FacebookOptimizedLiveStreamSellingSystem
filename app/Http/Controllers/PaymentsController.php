@@ -6,6 +6,7 @@ use App\Helpers;
 use App\NewPayPal;
 use App\Order;
 use App\AllPay;
+use App\OrderRelations;
 use App\PayPal;
 use App\Recipient;
 use App\ThirdPartyPaymentService;
@@ -125,4 +126,41 @@ class PaymentsController extends Controller {
         return Helpers::result(true, ThirdPartyPaymentService::all(), 200);
     }
 
+    public function refund()
+    {
+        $toBeValidated = [
+            'order_id' => 'required|array'
+        ];
+        $failMessage = Helpers::validation($toBeValidated, request());
+        if($failMessage)
+            return Helpers::result(false, $failMessage, 400);
+
+        if (!Order::checkIfOrderCanBeRefunded())
+            return Helpers::result(false, "The order can't be refunded", 400);
+
+        $orders = Order::whereIn('id', request()->order_id)->get();
+
+        foreach ($orders as $order)
+        {
+            $orderRelation = OrderRelations::where('order_id', $order->id)->whereIn('status', [6, 7])->first();
+            $paymentService = 'App\\' . $orderRelation->thirdPartyPaymentService->name;
+            $paymentServiceInstance = $paymentService::where('id', $orderRelation->payment_service_order_id)->first();
+
+            switch ($orderRelation->payment_service_id)
+            {
+                case 1:
+
+                    break;
+
+                case 2:
+
+                    break;
+
+                case 3:
+                    NewPayPal::refund($order, $paymentServiceInstance, $orderRelation);
+                    break;
+            }
+        }
+        return Helpers::result(true, 'The order has been refunded', 200);
+    }
 }

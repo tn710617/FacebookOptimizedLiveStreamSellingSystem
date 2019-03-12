@@ -22,7 +22,9 @@ class CreateThirdPartyPaymentServicesTable extends Migration
         DB::statement('INSERT INTO `third_party_payment_services` (`id`, `name`, `created_at`, `updated_at`)
 VALUES
 	(1,\'AllPay\',\'2019-02-20 06:50:18\',\'2019-02-20 06:50:18\'),
-	(2,\'PayPal\',\'2019-02-20 06:50:31\',\'2019-02-20 06:50:31\');');
+	(2,\'PayPal\',\'2019-02-20 06:50:31\',\'2019-02-20 06:50:31\'),
+	(3,\'NewPayPal\',\'2019-03-06 17:08:10\',\'2019-03-06 17:08:13\');
+');
     }
 
     /**

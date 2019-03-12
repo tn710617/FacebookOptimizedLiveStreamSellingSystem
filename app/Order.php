@@ -28,6 +28,11 @@ class Order extends Model {
         return $this->hasOne('App\Item', 'item_id', 'id');
     }
 
+    public function orderRelations()
+    {
+        return $this->belongsTo('App\OrderRelations', 'id', 'order_id');
+    }
+
     public static function getOrders(Request $request)
     {
         return Order::where('user_id', User::getUserID($request))->get();
@@ -231,5 +236,16 @@ class Order extends Model {
         $order->save();
 
         return $order;
+    }
+
+    public static function checkIfOrderCanBeRefunded()
+    {
+        $orders = Order::whereIn('id', request()->order_id)->get();
+        foreach ($orders as $order)
+        {
+            if(($order->status !== 5) && ($order->status !== 6) && ($order->status !== 7))
+                return false;
+        }
+        return true;
     }
 }

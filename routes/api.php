@@ -23,8 +23,8 @@ Route::post('/paypallistener', 'PaymentsController@listenPayPal');
 Route::get('/PayPalAuthorize', 'PaymentsController@authorizePayPalOrder');
 
 Route::middleware('tokenValidator')->group(function(){
+    Route::post('/refund', 'PaymentsController@refund');
     Route::post('/payments/{thirdPartyPaymentService}/{recipient}', 'PaymentsController@pay');
-    Route::post('/test', 'TestController@test');
     Route::get('/user-status', 'UsersController@getUserStatus');
     Route::get('/users', 'UsersController@get');
     Route::post('/items', 'ItemsController@create');

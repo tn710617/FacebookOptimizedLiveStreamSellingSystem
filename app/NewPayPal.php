@@ -6,13 +6,15 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Nexmo\Response;
 use PayPalCheckoutSdk\Orders\OrdersAuthorizeRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalCheckoutSdk\Payments\AuthorizationsCaptureRequest;
+use PayPalCheckoutSdk\Payments\CapturesRefundRequest;
 
 class NewPayPal extends Model {
 
-    protected $fillable = ['status', 'expiry_time', 'approve_date', 'to_be_captured_date', 'authorization_expiry_date', 'to_be_captured_amount', 'authorization_id', 'to_be_completed_date', 'capture_id'];
+    protected $fillable = ['status', 'expiry_time', 'approve_date', 'to_be_captured_date', 'authorization_expiry_date', 'to_be_captured_amount', 'authorization_id', 'to_be_completed_date', 'capture_id', 'total_amount'];
 
     public function user()
     {
@@ -287,6 +289,8 @@ class NewPayPal extends Model {
 
         Order::updateStatus($orderRelations, $recipient, 6);
 
+        OrderRelations::updateStatus($orderRelations, 6);
+
         Helpers::mailWhenPaid($NewPayPalOrder, $orderRelations);
     }
 
@@ -352,6 +356,49 @@ class NewPayPal extends Model {
     }
 
 
+    /**
+     * This function can be used to preform refund on the capture.
+     */
+    public static function refundOrder($captureId, $amount, $currency, $debug = false)
+    {
+        $request = new CapturesRefundRequest($captureId);
+        $request->body = self::buildRequestBodyForRefundOrder($amount, $currency);
+        $client = PayPalClient::client();
+        $response = $client->execute($request);
+
+        if ($debug)
+        {
+            print "Status Code: {$response->statusCode}\n";
+            print "Status: {$response->result->status}\n";
+            print "Order ID: {$response->result->id}\n";
+            print "Links:\n";
+            foreach ($response->result->links as $link)
+            {
+                print "\t{$link->rel}: {$link->href}\tCall Type: {$link->method}\n";
+            }
+            // To toggle printing the whole response body comment/uncomment below line
+            echo json_encode($response->result, JSON_PRETTY_PRINT), "\n";
+        }
+
+        return $response;
+    }
+
+    public static function buildRequestBodyForRefundOrder($amount = null, $currency = 'USD', $final_capture = false)
+    {
+        if ($amount != null)
+        {
+            return [
+                "amount"        => [
+                    'currency_code' => $currency,
+                    'value'         => $amount,
+                ],
+                'final_capture' => $final_capture
+            ];
+        }
+
+        return "{}";
+    }
+
     public static function dailyCaptureAuthorization()
     {
         $toBeCapturedPayments = NewPayPal::whereNotNull('authorization_id')->whereNull('capture_id')->where('to_be_captured_date', '<', Carbon::now()->toDateTimeString())->get();
@@ -363,8 +410,38 @@ class NewPayPal extends Model {
                 $toBeCapturedPayment->update(['capture_id' => $response->result->id, 'status' => 7]);
                 foreach ($toBeCapturedPayment->orderRelations as $orderRelation)
                 {
-                    $orderRelation->order->update(['status' => 7]);
+                    if (($orderRelation->status == 5) || ($orderRelation->status == 6))
+                    {
+                        $orderRelation->order->update(['status' => 7]);
+                        $orderRelation->update(['status' => 7]);
+                    }
                 }
+            }
+        }
+    }
+
+    public static function refund(Order $order, NewPayPal $paymentServiceInstance, OrderRelations $orderRelation)
+    {
+        if (($paymentServiceInstance->capture_id === null) && ($paymentServiceInstance->authorization_id !== null))
+        {
+            $paymentServiceInstance->update([
+                'to_be_captured_amount' => $paymentServiceInstance->to_be_captured_amount - $order->total_amount,
+                'total_amount'          => $paymentServiceInstance->total_amount - $order->total_amount
+            ]);
+            $order->update(['status' => 4]);
+            $orderRelation->update(['status' => 4]);
+        }
+
+        if ($paymentServiceInstance->capture_id !== null)
+        {
+            $response = self::refundOrder($paymentServiceInstance->capture_id, $order->total_amount, $paymentServiceInstance->mc_currency);
+            if ($response->result->status == 'COMPLETED')
+            {
+                $order->update(['status' => 4]);
+                $orderRelation->update(['status' => 4]);
+                $paymentServiceInstance->update([
+                    'total_amount' => $paymentServiceInstance->total_amount - $order->total_amount
+                ]);
             }
         }
     }
