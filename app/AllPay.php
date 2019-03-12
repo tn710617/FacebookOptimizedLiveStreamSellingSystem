@@ -17,7 +17,7 @@ use PaymentMethod;
 
 class AllPay extends Model {
 
-    protected $fillable = ['status', 'expiry_time'];
+    protected $fillable = ['status', 'expiry_time', 'to_be_completed_date'];
 
     public function user()
     {
@@ -60,7 +60,7 @@ class AllPay extends Model {
             $obj->Send['ChoosePayment'] = PaymentMethod::ALL;                           //付款方式:Credit
 
             //訂單的商品資料
-            foreach($toBeSavedInfo['orders'] as $order)
+            foreach ($toBeSavedInfo['orders'] as $order)
             {
                 array_push($obj->Send['Items'], array('Name'     => $order->item_name,
                                                       'Price'    => (int) $order->unit_price,
@@ -161,16 +161,17 @@ class AllPay extends Model {
         if (AllPay::checkIfCheckMacValueCorrect($request) && AllPay::checkIfPaymentPaid($request->RtnCode))
         {
             $AllPayPaymentOrders = (new AllPay)->where('MerchantTradeNo', $request->MerchantTradeNo)->first();
-            $AllPayPaymentOrders->update(['status' => 1, 'expiry_time' => null]);
+            $AllPayPaymentOrders->update(['status' => 7, 'expiry_time' => null, 'to_be_completed_date' => Carbon::now()->addDays(env('DAYS_OF_ORDER_TO_BE_COMPLETED'))->toDateTimeString()]);
             $recipient = $AllPayPaymentOrders->recipient;
 
             $orderRelations = $AllPayPaymentOrders->where('MerchantTradeNo', $request->MerchantTradeNo)->first()->orderRelations->where('payment_service_id', 1);
-            Order::updateStatus($orderRelations, $recipient, 6);
+            Order::updateStatus($orderRelations, $recipient, 7);
 
             Helpers::mailWhenPaid($AllPayPaymentOrders, $orderRelations);
 
             return true;
         }
+
         return false;
     }
 }
