@@ -79,6 +79,13 @@ class Order extends Model {
                 $order->save();
             }
 
+            if (($order->to_be_completed_time !== null)
+                && (Carbon::now()->gt($order->to_be_completed_time)))
+            {
+                $order->status = 3;
+                $order->save();
+            }
+
             $response[] = [
                 'id'                   => $order->id,
                 'order'                => $order->name,
