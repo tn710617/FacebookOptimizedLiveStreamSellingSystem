@@ -162,10 +162,10 @@ class AllPay extends Model {
         {
             $AllPayPaymentOrders = (new AllPay)->where('MerchantTradeNo', $request->MerchantTradeNo)->first();
             $AllPayPaymentOrders->update([
-                'status' => 7,
-                'expiry_time' => null,
+                'status'               => 7,
+                'expiry_time'          => null,
                 'to_be_completed_date' => Carbon::now()->addDays(env('DAYS_OF_ORDER_TO_BE_COMPLETED'))->toDateTimeString(),
-                'TradeNo' => $request->TradeNo,
+                'TradeNo'              => $request->TradeNo,
             ]);
             $recipient = $AllPayPaymentOrders->recipient;
 
@@ -179,4 +179,36 @@ class AllPay extends Model {
 
         return false;
     }
+
+    public static function refund($order, $paymentServiceInstance, $orderRelation)
+    {
+        //載入SDK(路徑可依系統規劃自行調整)
+        try
+        {
+            $obj = new AllInOne();
+
+            //服務參數
+            $obj->ServiceURL = "https://payment-stage.opay.tw/Cashier/AioChargeback";         //服務位置
+            $obj->HashKey = env('HASHKEY');                                            //測試用Hashkey，請自行帶入AllPay提供的HashKey
+            $obj->HashIV = env('HASHIV');                                            //測試用HashIV，請自行帶入AllPay提供的HashIV
+            $obj->MerchantID = env('MERCHANTID');                                                      //測試用MerchantID，請自行帶入AllPay提供的MerchantID
+            $obj->EncryptType = EncryptType::ENC_SHA256;                                        //CheckMacValue加密類型，請固定填入1，使用SHA256加密
+
+            $obj->ChargeBack['MerchantTradeNo'] = $paymentServiceInstance->MerchantTradeNo;
+
+            $obj->ChargeBack['TradeNo'] = $paymentServiceInstance->TradeNo;
+            //訂單編號
+            $obj->ChargeBack['ChargeBackTotalAmount'] = $order->total_amount;
+            //退款金額
+            $obj->AioChargeback();
+
+        } catch (Exception $e)
+        {
+            return Helpers::result(true, 'Something wrong happened', 200);
+            echo $e->getMessage();
+        }
+
+
+    }
+
 }

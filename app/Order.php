@@ -99,7 +99,7 @@ class Order extends Model {
                 'total_amount'         => $order->total_amount,
                 'channel_id'           => $order->channel_id,
                 'status'               => $order->status,
-                'expiry_time'          => Carbon::parse($order->expiry_time)->toCookieString(),
+                'expiry_time'          => $order->expiry_time == null ? null : Carbon::parse($order->expiry_time)->toCookieString(),
                 'created_time'         => $order->created_at->toCookieString(),
                 'images'               => $order->images == null ? null : Item::getImageURL($order->images),
                 'recipient'            => $order->recipient,
@@ -110,7 +110,7 @@ class Order extends Model {
                 'city'                 => $order->city,
                 'district'             => $order->district,
                 'others'               => $order->others,
-                'to_be_deleted_time'   => Carbon::parse($order->to_be_deleted_time)->toCookieString(),
+                'to_be_deleted_time'   => $order->expiry_time == null ? null : Carbon::parse($order->to_be_deleted_time)->toCookieString(),
                 'to_be_completed_time' => $order->to_be_completed_time,
             ];
         }

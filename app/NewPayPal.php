@@ -231,7 +231,7 @@ class NewPayPal extends Model {
         {
             return [
                 "amount" => [
-                    'currency_code' => 'USD',
+                    'currency_code' => 'TWD',
                     'value'         => $amount,
                 ],
             ];

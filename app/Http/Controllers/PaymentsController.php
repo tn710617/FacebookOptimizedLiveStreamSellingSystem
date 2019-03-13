@@ -25,7 +25,7 @@ class PaymentsController extends Controller {
     public function listenAllPay(Request $request)
     {
         $AllPay = new AllPay();
-        if($AllPay->listen($request))
+        if ($AllPay->listen($request))
             return '1|OK';
     }
 
@@ -57,12 +57,11 @@ class PaymentsController extends Controller {
             return Helpers::result(false, 'The recipient doesn\'t belong to the user', 400);
 
         $toBeSavedInfo = [
-            'total_amount' => Order::getTotalAmountForPayments($orders),
-            'orders_name' => Order::getOrdersNameForPayments($orders),
-            'merchant_trade_no' => time() . Helpers::createAUniqueNumber(),
+            'total_amount'        => Order::getTotalAmountForPayments($orders),
+            'orders_name'         => Order::getOrdersNameForPayments($orders),
+            'merchant_trade_no'   => time() . Helpers::createAUniqueNumber(),
             'merchant_trade_date' => date('Y/m/d H:i:s'),
             'trade_desc' => 'BuyBuyGo',
-            'quantity' => 1,
             'user_id' => User::getUserID($request),
             'payment_service' => $thirdPartyPaymentService,
             'expiry_time' => (new Carbon())->now()->addDay(1)->toDateTimeString(),
@@ -75,25 +74,26 @@ class PaymentsController extends Controller {
         {
             case 1:
                 $error = (new AllPay)->make($toBeSavedInfo, $request, $recipient);
-                if($error)
-                    return Helpers::result(false, $error,400);
+                if ($error)
+                    return Helpers::result(false, $error, 400);
 
                 return (new AllPay())->send($toBeSavedInfo, $request);
                 break;
 
             case 2:
                 $error = (new PayPal)->make($toBeSavedInfo, $request, $recipient);
-                if($error)
+                if ($error)
                     return Helpers::result(false, $error, 400);
 
                 $url = (new PayPal)->send($toBeSavedInfo, $request, $recipient);
+
                 return Helpers::result(true, $url, 200);
                 break;
 
             case 3:
                 $toBeSavedInfo = (new NewPayPal)->createOrder($toBeSavedInfo, $recipient);
                 $error = (new NewPayPal)->make($toBeSavedInfo, $request, $recipient);
-                if($error)
+                if ($error)
                     return $error;
 
                 return Helpers::result(true, $toBeSavedInfo['linkForApproval'], 200);
@@ -102,15 +102,15 @@ class PaymentsController extends Controller {
 
     }
 
-    public function authorizePayPalOrder ()
+    public function authorizePayPalOrder()
     {
-        if(NewPayPal::checkIfPaymentIDExists() && !NewPayPal::checkIfPaymentApproved() && isset(request()->PayerID))
+        if (NewPayPal::checkIfPaymentIDExists() && !NewPayPal::checkIfPaymentApproved() && isset(request()->PayerID))
         {
             $response = NewPayPal::authorizeOrder(request()->token);
 
             $error = (new NewPayPal)->listen($response);
-            if($error)
-            return $error;
+            if ($error)
+                return $error;
 
             $redirectURL = NewPayPal::where('payment_id', request()->token)->first()->client_back_url;
 
@@ -132,7 +132,7 @@ class PaymentsController extends Controller {
             'order_id' => 'required|array'
         ];
         $failMessage = Helpers::validation($toBeValidated, request());
-        if($failMessage)
+        if ($failMessage)
             return Helpers::result(false, $failMessage, 400);
 
         if (!Order::checkIfOrderCanBeRefunded())
@@ -149,18 +149,30 @@ class PaymentsController extends Controller {
             switch ($orderRelation->payment_service_id)
             {
                 case 1:
+                    $error = AllPay::refund($order, $paymentServiceInstance, $orderRelation);
+                    if ($error)
+                        return $error;
 
+                    $order->update(['status' => 4, 'to_be_completed_time' => null]);
+                    $orderRelation->update(['status' => 4]);
+                    $paymentServiceInstance->update([
+                        'total_amount' => $paymentServiceInstance->total_amount - $order->total_amount
+                    ]);
+
+                    return Helpers::result(true, 'The order has been refunded', 200);
                     break;
 
                 case 2:
 
+                    return Helpers::result(true, 'The order has been refunded', 200);
                     break;
 
                 case 3:
                     NewPayPal::refund($order, $paymentServiceInstance, $orderRelation);
+
+                    return Helpers::result(true, 'The order has been refunded', 200);
                     break;
             }
         }
-        return Helpers::result(true, 'The order has been refunded', 200);
     }
 }
