@@ -135,6 +135,14 @@ class PaymentsController extends Controller {
         if ($failMessage)
             return Helpers::result(false, $failMessage, 400);
 
+
+        if (!Helpers::checkIfIDExists(request(), new Order(), 'order_id'))
+            return Helpers::result(false, 'The orders doesn\'t exist', 400);
+
+        if (!Helpers::checkIfBelongToTheUser(request(), new Order(), 'order_id'))
+            return Helpers::result(false, 'The order doesn\'t belong to this user', 400);
+
+
         if (!Order::checkIfOrderCanBeRefunded())
             return Helpers::result(false, "The order can't be refunded", 400);
 

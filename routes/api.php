@@ -54,5 +54,6 @@ Route::middleware('tokenValidator')->group(function(){
     Route::get('/sold-items/{channel}', 'OrdersController@getSoldItemsPerChannel');
     Route::get('/taiwan-post-code', 'UsersController@getTaiwanPostCode');
     Route::get('/payment-services', 'PaymentsController@getPaymentService');
+    Route::get('/order-status', 'OrdersController@getOrderStatus');
 });
 

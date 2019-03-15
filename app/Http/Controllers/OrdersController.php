@@ -7,6 +7,7 @@ use App\Helpers;
 use App\Item;
 use App\Mail\OrderCreated;
 use App\Order;
+use App\OrderStatus;
 use App\Recipient;
 use App\StreamingItem;
 use App\User;
@@ -129,6 +130,11 @@ class OrdersController extends Controller {
         $response = Helpers::convertStringToIntAmongObjects($rawInformation, $toBeConverteds);
 
         return Helpers::result(true, $response, 200);
+    }
+
+    public function getOrderStatus()
+    {
+        return OrderStatus::all();
     }
 
 }
