@@ -110,10 +110,12 @@ class UsersController extends Controller {
 
     public function createNewRecipients(Request $request)
     {
+        $request->request->add(['phone_number' => '+' . $request->phone['phone_code'] . $request->phone['phone_number']]);
         $toBeValidatedCondition = [
             'name'                 => 'required|string|max:255',
             'phone'                => 'required|array',
-            'phone.phone_code'     => 'required|string|max:5',
+            'phone_number'         => 'required|phone:AUTO',
+            'phone.phone_code'     => 'required|string|max:5|exists:country,phonecode',
             'phone.phone_number'   => 'required|string|min:5|max:20',
             'address'              => 'required|array',
             'address.country_code' => 'required|size:2|exists:country,iso',
@@ -128,6 +130,9 @@ class UsersController extends Controller {
             return Helpers::result(false, $failMessage, 400);
         }
 
+        $pattenForPhoneNumber = '/[^0-9]/';
+        $phone_number = preg_replace($pattenForPhoneNumber, '', $request->phone['phone_number']);
+
         if (Recipient::countRecipientQuantity($request) == User::getUser($request)->recipient_quantity)
         {
             return Helpers::result(false, 'You\'ve reached your recipient\'s quantity limit', 400);
@@ -135,7 +140,7 @@ class UsersController extends Controller {
 
         $phone = new Phone();
         $phone->phone_code = $request->phone['phone_code'];
-        $phone->phone_number = $request->phone['phone_number'];
+        $phone->phone_number = $phone_number;
         $phone->save();
 
         Recipient::forceCreate([
