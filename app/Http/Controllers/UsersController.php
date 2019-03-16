@@ -116,10 +116,10 @@ class UsersController extends Controller {
             'phone.phone_code'     => 'required|string|max:5',
             'phone.phone_number'   => 'required|string|min:5|max:20',
             'address'              => 'required|array',
-            'address.country_code' => 'required|size:2',
-            'address.post_code'    => 'required|max:10',
-            'address.city'         => 'required|string|max:50',
-            'address.district'     => 'required|string|max:50',
+            'address.country_code' => 'required|size:2|exists:country,iso',
+            'address.post_code'    => 'required|max:10|exists:zipcode,ZipCode',
+            'address.city'         => 'required|string|max:50|exists:zipcode,City',
+            'address.district'     => 'required|string|max:50|exists:zipcode,Area',
             'address.others'       => 'required|string|max:255'
         ];
         $failMessage = Helpers::validation($toBeValidatedCondition, $request);
