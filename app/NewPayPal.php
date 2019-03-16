@@ -430,6 +430,7 @@ class NewPayPal extends Model {
             ]);
             $order->update(['status' => 4]);
             $orderRelation->update(['status' => 4]);
+            return true;
         }
 
         if ($paymentServiceInstance->capture_id !== null)
@@ -442,7 +443,9 @@ class NewPayPal extends Model {
                 $paymentServiceInstance->update([
                     'total_amount' => $paymentServiceInstance->total_amount - $order->total_amount
                 ]);
+                return true;
             }
         }
+        return false;
     }
 }

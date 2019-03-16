@@ -13,6 +13,7 @@ use App\ThirdPartyPaymentService;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentsController extends Controller {
 
@@ -61,13 +62,13 @@ class PaymentsController extends Controller {
             'orders_name'         => Order::getOrdersNameForPayments($orders),
             'merchant_trade_no'   => time() . Helpers::createAUniqueNumber(),
             'merchant_trade_date' => date('Y/m/d H:i:s'),
-            'trade_desc' => 'BuyBuyGo',
-            'user_id' => User::getUserID($request),
-            'payment_service' => $thirdPartyPaymentService,
-            'expiry_time' => (new Carbon())->now()->addDay(1)->toDateTimeString(),
-            'orders' => $orders,
-            'mc_currency' => 'TWD',
-            'ClientBackURL' => $request->ClientBackURL
+            'trade_desc'          => 'BuyBuyGo',
+            'user_id'             => User::getUserID($request),
+            'payment_service'     => $thirdPartyPaymentService,
+            'expiry_time'         => (new Carbon())->now()->addDay(1)->toDateTimeString(),
+            'orders'              => $orders,
+            'mc_currency'         => 'TWD',
+            'ClientBackURL'       => $request->ClientBackURL
         ];
 
         switch ($thirdPartyPaymentService->id)
@@ -142,7 +143,6 @@ class PaymentsController extends Controller {
         if (!Helpers::checkIfBelongToTheUser(request(), new Order(), 'order_id'))
             return Helpers::result(false, 'The order doesn\'t belong to this user', 400);
 
-
         if (!Order::checkIfOrderCanBeRefunded())
             return Helpers::result(false, "The order can't be refunded", 400);
 
@@ -167,18 +167,28 @@ class PaymentsController extends Controller {
                         'total_amount' => $paymentServiceInstance->total_amount - $order->total_amount
                     ]);
 
+                    Helpers::mailWhenRefundedOrReceived($paymentServiceInstance, $orderRelation);
+
                     return Helpers::result(true, 'The order has been refunded', 200);
                     break;
 
                 case 2:
 
-                    return Helpers::result(true, 'The order has been refunded', 200);
+                    return Helpers::result(false, 'This order can\'t be refunded', 200);
                     break;
 
                 case 3:
-                    NewPayPal::refund($order, $paymentServiceInstance, $orderRelation);
+                    $state = NewPayPal::refund($order, $paymentServiceInstance, $orderRelation);
 
-                    return Helpers::result(true, 'The order has been refunded', 200);
+                    if ($state == true)
+                    {
+                        Helpers::mailWhenRefundedOrReceived($paymentServiceInstance, $orderRelation);
+
+                        return Helpers::result(true, 'The order has been refunded', 200);
+                    }
+
+
+                    return Helpers::result(false, 'Something wrong happened', 200);
                     break;
             }
         }

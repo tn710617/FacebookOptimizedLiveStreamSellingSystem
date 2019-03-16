@@ -6,6 +6,8 @@ namespace App;
 
 use App\Mail\PaymentReceived;
 use App\Mail\PaymentReceivedForSeller;
+use App\Mail\PaymentRefunded;
+use App\Mail\PaymentRefundedForSeller;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -179,10 +181,37 @@ class Helpers {
 
     }
 
+    public static function mailWhenRefundedOrReceived($paymentService, $orderRelations)
+    {
+        $user_id = $paymentService->user->id;
+        $Seller_user_id = $orderRelations->first()->order->channel->user_id;
+
+        $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
+        $Seller_FB_email = Helpers::getFacebookResources(Token::getLatestToken($Seller_user_id))->getEmail();
+
+        $Seller_local_email = User::where('id', $Seller_user_id)->first()->email;
+        $Local_email = User::where('id', $user_id)->first()->email;
+
+        if ($FB_email !== null)
+        {
+            Mail::to($FB_email)->send(new PaymentRefunded($paymentService, $orderRelations));
+            Mail::to($Seller_FB_email)->send(new PaymentRefundedForSeller($paymentService, $orderRelations));
+        }
+
+        elseif ($Local_email !== null)
+        {
+            Mail::to($Local_email)->send(new PaymentRefunded($paymentService, $orderRelations));
+            Mail::to($Seller_local_email)->send(new PaymentRefundedForSeller($paymentService, $orderRelations));
+        }
+    }
+
+
     public static function getLongLivedToken($token)
     {
         $url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id='.env('FACEBOOK_API_APP_ID').'&client_secret='.env('FACEBOOK_API_APP_SECRET').'&fb_exchange_token='.$token.'';
         return json_decode(file_get_contents($url), true);
     }
+
+
 
 }
