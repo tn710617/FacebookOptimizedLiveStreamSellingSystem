@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers;
+use App\Jobs\SendMailWhenOrderRefunded;
 use App\NewPayPal;
 use App\Order;
 use App\AllPay;
@@ -167,7 +168,7 @@ class PaymentsController extends Controller {
                         'total_amount' => $paymentServiceInstance->total_amount - $order->total_amount
                     ]);
 
-                    Helpers::mailWhenRefundedOrReceived($paymentServiceInstance, $orderRelation);
+                    SendMailWhenOrderRefunded::dispatch($paymentServiceInstance, $orderRelation);
 
                     return Helpers::result(true, 'The order has been refunded', 200);
                     break;
@@ -182,7 +183,7 @@ class PaymentsController extends Controller {
 
                     if ($state == true)
                     {
-                        Helpers::mailWhenRefundedOrReceived($paymentServiceInstance, $orderRelation);
+                        SendMailWhenOrderRefunded::dispatch($paymentServiceInstance, $orderRelation);
 
                         return Helpers::result(true, 'The order has been refunded', 200);
                     }

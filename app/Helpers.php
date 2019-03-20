@@ -4,6 +4,7 @@
 namespace App;
 
 
+use App\Mail\OrderCreated;
 use App\Mail\PaymentReceived;
 use App\Mail\PaymentReceivedForSeller;
 use App\Mail\PaymentRefunded;
@@ -156,9 +157,9 @@ class Helpers {
         }
     }
 
-    public static function mailWhenPaid($paymentService, $orderRelations)
+    public static function mailWhenPaid($paymentServiceOrder, $orderRelations)
     {
-        $user_id = $paymentService->user->id;
+        $user_id = $paymentServiceOrder->user->id;
         $Seller_user_id = $orderRelations->first()->order->channel->user_id;
 
         $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
@@ -169,21 +170,21 @@ class Helpers {
 
         if ($FB_email !== null)
         {
-            Mail::to($FB_email)->send(new PaymentReceived($paymentService, $orderRelations));
-            Mail::to($Seller_FB_email)->send(new PaymentReceivedForSeller($paymentService, $orderRelations));
+            Mail::to($FB_email)->send(new PaymentReceived($paymentServiceOrder, $orderRelations));
+            Mail::to($Seller_FB_email)->send(new PaymentReceivedForSeller($paymentServiceOrder, $orderRelations));
         }
 
         elseif ($Local_email !== null)
         {
-            Mail::to($Local_email)->send(new PaymentReceived($paymentService, $orderRelations));
-            Mail::to($Seller_local_email)->send(new PaymentReceivedForSeller($paymentService, $orderRelations));
+            Mail::to($Local_email)->send(new PaymentReceived($paymentServiceOrder, $orderRelations));
+            Mail::to($Seller_local_email)->send(new PaymentReceivedForSeller($paymentServiceOrder, $orderRelations));
         }
 
     }
 
-    public static function mailWhenRefundedOrReceived($paymentService, $orderRelations)
+    public static function mailWhenRefundedOrReceived($paymentServiceOrder, $orderRelations)
     {
-        $user_id = $paymentService->user->id;
+        $user_id = $paymentServiceOrder->user->id;
         $Seller_user_id = $orderRelations->first()->order->channel->user_id;
 
         $FB_email = Helpers::getFacebookResources(Token::getLatestToken($user_id))->getEmail();
@@ -194,14 +195,14 @@ class Helpers {
 
         if ($FB_email !== null)
         {
-            Mail::to($FB_email)->send(new PaymentRefunded($paymentService, $orderRelations));
-            Mail::to($Seller_FB_email)->send(new PaymentRefundedForSeller($paymentService, $orderRelations));
+            Mail::to($FB_email)->send(new PaymentRefunded($paymentServiceOrder, $orderRelations));
+            Mail::to($Seller_FB_email)->send(new PaymentRefundedForSeller($paymentServiceOrder, $orderRelations));
         }
 
         elseif ($Local_email !== null)
         {
-            Mail::to($Local_email)->send(new PaymentRefunded($paymentService, $orderRelations));
-            Mail::to($Seller_local_email)->send(new PaymentRefundedForSeller($paymentService, $orderRelations));
+            Mail::to($Local_email)->send(new PaymentRefunded($paymentServiceOrder, $orderRelations));
+            Mail::to($Seller_local_email)->send(new PaymentRefundedForSeller($paymentServiceOrder, $orderRelations));
         }
     }
 
@@ -212,6 +213,14 @@ class Helpers {
         return json_decode(file_get_contents($url), true);
     }
 
+    public static function mailWhenOrderPlaced($order, $FB_email, $Local_email)
+    {
+        if ($FB_email!== null)
+            return Mail::to($FB_email)->send(new OrderCreated($order));
+
+        elseif ($Local_email !== null)
+            return Mail::to($Local_email)->queue(new OrderCreated($order));
+    }
 
 
 }

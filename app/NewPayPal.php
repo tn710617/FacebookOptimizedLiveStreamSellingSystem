@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Jobs\SendMailWhenPaymentPaid;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -291,7 +292,7 @@ class NewPayPal extends Model {
 
         OrderRelations::updateStatus($orderRelations, 6);
 
-        Helpers::mailWhenPaid($NewPayPalOrder, $orderRelations);
+        SendMailWhenPaymentPaid::dispatch($NewPayPalOrder, $orderRelations);
     }
 
     public static function checkIfPaymentApproved()

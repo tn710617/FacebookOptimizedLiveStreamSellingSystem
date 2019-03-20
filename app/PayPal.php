@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Jobs\SendMailWhenPaymentPaid;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -207,7 +208,7 @@ class PayPal extends Model {
 
                     Order::updateStatus($orderRelations, $recipient, 7);
 
-                    Helpers::mailWhenPaid($PayPal, $orderRelations);
+                    SendMailWhenPaymentPaid::dispatch($PayPal, $orderRelations);
                 }
             }
         } elseif ($enable_sandbox)

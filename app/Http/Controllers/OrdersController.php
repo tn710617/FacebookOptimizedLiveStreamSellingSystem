@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Channel;
 use App\Helpers;
 use App\Item;
+use App\Jobs\SendMailWhenOrderPlaced;
 use App\Mail\OrderCreated;
 use App\Order;
 use App\OrderStatus;
@@ -56,11 +57,7 @@ class OrdersController extends Controller {
         $FB_email = Helpers::getFacebookResources($request->bearerToken())->getEmail();
         $Local_email = $buyer->email;
 
-        if ($FB_email!== null)
-        Mail::to($FB_email)->send(new OrderCreated($order));
-
-        elseif ($Local_email !== null)
-        Mail::to($Local_email)->send(new OrderCreated($order));
+        SendMailWhenOrderPlaced::dispatch($order, $FB_email, $Local_email);
 
 
         return Helpers::result(true, 'Your order has been successfully placed', 200);
