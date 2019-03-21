@@ -45,7 +45,13 @@ class UsersController extends Controller {
 
         $me = Helpers::getFacebookResources($token);
 
-        $expiry_time = $tokenDetail['expires_in'];
+        if (!isset($tokenDetail['expires_in']))
+        {
+            $expiry_time = null;
+        } else
+        {
+            $expiry_time = $tokenDetail['expires_in'];
+        }
 
         if (Token::checkIfUserExists($me) > 0)
         {
@@ -53,23 +59,22 @@ class UsersController extends Controller {
             Token::forceCreate([
                 'name'        => $token,
                 'user_id'     => $user_id,
-                'expiry_time' => time() + $expiry_time,
+                'expiry_time' => ($expiry_time == null) ? null : time() + $expiry_time,
             ]);
 
             return Helpers::result(true, $response, 200);
         }
 
         User::updateOrCreate(['FB_id' => $me->getId()], [
-            'id'          => 0,
-            'name'        => $me->getName(),
-            'email'       => $me->getEmail(),
-            'expiry_time' => $expiry_time
+            'id'    => 0,
+            'name'  => $me->getName(),
+            'email' => $me->getEmail(),
         ]);
 
         Token::forceCreate([
             'name'        => $token,
             'user_id'     => User::getUserIDViaFACEBOOK($me),
-            'expiry_time' => $expiry_time
+            'expiry_time' => ($expiry_time == null) ? null : time() + $expiry_time
         ]);
 
         return Helpers::result(true, $response, 200);
