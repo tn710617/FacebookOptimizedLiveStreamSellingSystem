@@ -14,6 +14,7 @@ vendor/
 node_modules/
 npm-debug.log
 worker.log
+SSL/
 
 # Laravel 4 specific
 bootstrap/compiled.php
