@@ -100,7 +100,7 @@ class NewPayPal extends Model {
             'application_context' =>
                 [
                     'return_url'           => env('PAYPAL_SANDBOX_RETURN_URL'),
-                    'cancel_url'           => env('PAYPAL_SANDBOX_CANCEL_URL'),
+                    'cancel_url'           => $toBeSavedInfo['ClientBackURL'],
                     'brand_name'           => env('APP_NAME'),
                     'locale'               => env('PAYPAL_SANDBOX_LOCALE'),
                     'landing_page'         => env('PAYPAL_SANDBOX_LANDING_PAGE'),
