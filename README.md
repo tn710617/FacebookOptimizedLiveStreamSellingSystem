@@ -1,5 +1,6 @@
 English | [繁體中文](./README.zh-TW.md)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <h1 align="center">BuyBuyGo - An optimized system for Facebook live-stream video selling</h1>
 

@@ -1,5 +1,7 @@
 [English](./README.md) | 繁體中文
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 <h1 align="center">BuyBuyGo-Facebook直播拍賣優化系統</h1>
 
 ## 前言
