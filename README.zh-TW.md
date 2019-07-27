@@ -54,7 +54,7 @@
      
 ### Android
 - [Lester](https://github.com/jhengjhe/BuyBuyGo)
-- [James](https://github.com/tn710617/FacebookOptimizedLiveStreamSellingSystem)
+- [James](https://github.com/FightJames/BuyBuyGo)
      
 ### Web
 - [Kai](https://github.com/LiaoYingKai/comeBuy)
